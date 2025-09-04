@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Cloud",
+            "request": "launch",
+            "type": "al",
+            "environmentType": "Sandbox",
+            "environmentName": "yildirimpoc",
+            "tenant": "176e7a8d-cd94-4dc5-87b8-cd477c98277d",
+            "breakOnError": "All",
+            "schemaUpdateMode": "ForceSync",
+            "launchBrowser": true,
+            "enableLongRunningSqlStatements": true,
+            "enableSqlInformationDebugger": true
+        }
+    ]
+}
