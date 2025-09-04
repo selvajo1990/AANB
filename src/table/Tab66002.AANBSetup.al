@@ -17,29 +17,38 @@ table 66002 "AANB Setup"
         {
             TableRelation = "Config. Template Header";
         }
-        field(1500; "Sales Template Name "; Code[20])
+        field(1500; "Sales Template Name"; Code[20])
         {
+            TableRelation = "Item Journal Template";
+
         }
-        field(2000; "Sales Batch Name "; Code[20])
+        field(2000; "Sales Batch Name"; Code[20])
         {
+            TableRelation = "Item Journal Batch".Name where("Journal Template Name" = field("Sales Template Name"));
         }
-        field(2500; "Sales Return Template Name "; Code[20])
+        field(2500; "Sales Return Template Name"; Code[20])
         {
+            TableRelation = "Item Journal Template";
         }
-        field(3000; "Sales Return Batch Name "; Code[20])
+        field(3000; "Sales Return Batch Name"; Code[20])
         {
+            TableRelation = "Item Journal Batch".Name where("Journal Template Name" = field("Sales Return Template Name"));
         }
-        field(3500; "Purchase Template Name "; Code[20])
+        field(3500; "Purchase Template Name"; Code[20])
         {
+            TableRelation = "Item Journal Template";
         }
         field(4000; "Purchase Batch Name"; Code[20])
         {
+            TableRelation = "Item Journal Batch".Name where("Journal Template Name" = field("Purchase Template Name"));
         }
         field(4500; "Purchase Return Template Name"; Code[20])
         {
+            TableRelation = "Item Journal Template";
         }
         field(5000; "Purchase Return Batch Name"; Code[20])
         {
+            TableRelation = "Item Journal Batch".Name where("Journal Template Name" = field("Purchase Return Batch Name"));
         }
     }
     keys

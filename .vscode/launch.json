@@ -6,7 +6,7 @@
             "request": "launch",
             "type": "al",
             "environmentType": "Sandbox",
-            "environmentName": "yildirimpoc",
+            "environmentName": "Sandbox",
             "tenant": "176e7a8d-cd94-4dc5-87b8-cd477c98277d",
             "breakOnError": "All",
             "schemaUpdateMode": "ForceSync",

@@ -23,38 +23,42 @@ page 66002 "AANB Setup"
                 {
                     ToolTip = 'Specifies the value of the Default Item Template field.', Comment = '%';
                 }
+            }
+            group("Journal Templates")
+            {
+                field("Purchase Template Name "; Rec."Purchase Template Name")
+                {
+                    ToolTip = 'Specifies the value of the Purchase Template Name  field.', Comment = '%';
+                }
                 field("Purchase Batch Name"; Rec."Purchase Batch Name")
                 {
                     ToolTip = 'Specifies the value of the Purchase Batch Name field.', Comment = '%';
-                }
-                field("Purchase Template Name "; Rec."Purchase Template Name ")
-                {
-                    ToolTip = 'Specifies the value of the Purchase Template Name  field.', Comment = '%';
                 }
                 field("Purchase Return Template Name"; Rec."Purchase Return Template Name")
                 {
                     ToolTip = 'Specifies the value of the Purchase Return Template Name field.', Comment = '%';
                 }
-                field("Sales Return Batch Name "; Rec."Sales Return Batch Name ")
-                {
-                    ToolTip = 'Specifies the value of the Sales Return Batch Name  field.', Comment = '%';
-                }
-                field("Sales Batch Name "; Rec."Sales Batch Name ")
-                {
-                    ToolTip = 'Specifies the value of the Sales Batch Name  field.', Comment = '%';
-                }
-                field("Sales Template Name "; Rec."Sales Template Name ")
-                {
-                    ToolTip = 'Specifies the value of the Sales Template Name  field.', Comment = '%';
-                }
-                field("Sales Return Template Name "; Rec."Sales Return Template Name ")
-                {
-                    ToolTip = 'Specifies the value of the Sales Return Template Name  field.', Comment = '%';
-                }
                 field("Purchase Return Batch Name"; Rec."Purchase Return Batch Name")
                 {
                     ToolTip = 'Specifies the value of the Purchase Return Batch Name field.', Comment = '%';
                 }
+                field("Sales Template Name "; Rec."Sales Template Name")
+                {
+                    ToolTip = 'Specifies the value of the Sales Template Name  field.', Comment = '%';
+                }
+                field("Sales Batch Name "; Rec."Sales Batch Name")
+                {
+                    ToolTip = 'Specifies the value of the Sales Batch Name  field.', Comment = '%';
+                }
+                field("Sales Return Template Name "; Rec."Sales Return Template Name")
+                {
+                    ToolTip = 'Specifies the value of the Sales Return Template Name  field.', Comment = '%';
+                }
+                field("Sales Return Batch Name "; Rec."Sales Return Batch Name")
+                {
+                    ToolTip = 'Specifies the value of the Sales Return Batch Name  field.', Comment = '%';
+                }
+
             }
         }
     }
