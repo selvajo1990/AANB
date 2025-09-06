@@ -11,6 +11,12 @@ table 66003 "LRI Item"
         field(500; Description; Text[100])
         {
         }
+        field(520; Type; Text[100])
+        {
+        }
+        field(540; "Is Active"; Boolean)
+        {
+        }
         field(1000; Processed; Boolean)
         {
         }
@@ -23,6 +29,7 @@ table 66003 "LRI Item"
         field(2500; "Error Info"; Text[2048])
         {
         }
+
     }
     keys
     {

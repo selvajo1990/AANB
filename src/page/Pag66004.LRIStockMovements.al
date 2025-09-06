@@ -72,6 +72,10 @@ page 66004 "LRI Stock Movements"
                 {
                     ToolTip = 'Specifies the value of the Reason Code field.', Comment = '%';
                 }
+                field("Reason Description"; Rec."Reason Description")
+                {
+                    ToolTip = 'Specifies the value of the Reason Description field.';
+                }
             }
         }
     }
@@ -81,6 +85,7 @@ page 66004 "LRI Stock Movements"
         {
             action("Post Journal")
             {
+                ToolTip = 'Executes the Post Journal action.';
 
             }
         }

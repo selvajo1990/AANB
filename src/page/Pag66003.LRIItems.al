@@ -20,6 +20,14 @@ page 66003 "LRI Items"
                 {
                     ToolTip = 'Specifies the value of the Description field.', Comment = '%';
                 }
+                field(Type; Rec.Type)
+                {
+                    ToolTip = 'Specifies the value of the Type field.';
+                }
+                field("Is Active"; Rec."Is Active")
+                {
+                    ToolTip = 'Specifies the value of the Is Active field.';
+                }
                 field(Processed; Rec.Processed)
                 {
                     ToolTip = 'Specifies the value of the Processed field.', Comment = '%';
@@ -41,11 +49,40 @@ page 66003 "LRI Items"
     }
     actions
     {
+        area(Promoted)
+        {
+            actionref(FetchLRIItem; "Fetch LRI Item")
+            {
+
+            }
+            actionref(CreateItem; "Create Item")
+            {
+
+            }
+
+        }
         area(Processing)
         {
             action("Create Item")
             {
+                ToolTip = 'Executes the Create Item action.';
+                ApplicationArea = All;
+            }
+            action("Fetch LRI Item")
+            {
+                Image = GetEntries;
+                ApplicationArea = All;
+                ToolTip = 'Executes the Fetch LRI Item action.';
+                trigger OnAction()
+                var
+                    LRIIntegrationMgmt: Codeunit "LRI Integration Mgmt.";
+                    ConfirmMsg: Label 'This action fetch item from LRI.Do you want to continue ?';
 
+                begin
+                    if not Confirm(ConfirmMsg) then
+                        exit;
+                    LRIIntegrationMgmt.ProductFetch();
+                end;
             }
         }
     }

@@ -11,7 +11,7 @@ table 66002 "AANB Setup"
         }
         field(500; "Default B2C Customer"; Code[20])
         {
-            TableRelation = "Config. Template Header";
+            TableRelation = "Customer";
         }
         field(1000; "Default Item Template"; Code[20])
         {
@@ -20,7 +20,6 @@ table 66002 "AANB Setup"
         field(1500; "Sales Template Name"; Code[20])
         {
             TableRelation = "Item Journal Template";
-
         }
         field(2000; "Sales Batch Name"; Code[20])
         {
@@ -48,7 +47,11 @@ table 66002 "AANB Setup"
         }
         field(5000; "Purchase Return Batch Name"; Code[20])
         {
-            TableRelation = "Item Journal Batch".Name where("Journal Template Name" = field("Purchase Return Batch Name"));
+            TableRelation = "Item Journal Batch".Name where("Journal Template Name" = field("Purchase Return Template Name"));
+        }
+        field(5500; "Product Fetch"; Code[20])
+        {
+            TableRelation = "API Template Setup";
         }
     }
     keys

@@ -60,6 +60,13 @@ page 66002 "AANB Setup"
                 }
 
             }
+            group(Product)
+            {
+                field("Product Fetch"; Rec."Product Fetch")
+                {
+                    ToolTip = 'Specifies the value of the Product Fetch field.';
+                }
+            }
         }
     }
     trigger OnOpenPage()
