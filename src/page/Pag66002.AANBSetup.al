@@ -67,6 +67,13 @@ page 66002 "AANB Setup"
                     ToolTip = 'Specifies the value of the Product Fetch field.';
                 }
             }
+            group("No. Series")
+            {
+                field("Item Nos"; Rec."Item Nos")
+                {
+                    ToolTip = 'Specifies the value of the Item Nos', Comment = '%';
+                }
+            }
         }
     }
     trigger OnOpenPage()

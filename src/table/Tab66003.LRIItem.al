@@ -19,6 +19,11 @@ table 66003 "LRI Item"
         }
         field(1000; Processed; Boolean)
         {
+            trigger OnValidate()
+            begin
+                "Processed Date" := Today;
+                "Processed Time" := Time;
+            end;
         }
         field(1500; "Processed Date"; Date)
         {

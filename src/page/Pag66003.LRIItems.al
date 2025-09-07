@@ -67,6 +67,17 @@ page 66003 "LRI Items"
             {
                 ToolTip = 'Executes the Create Item action.';
                 ApplicationArea = All;
+                Caption = 'Create Item';
+                Image = ItemTracking;
+                trigger OnAction()
+                var
+                    ConfirmationQst: Label 'Do you want to Create all product In Item?';
+                begin
+                    if not Confirm(ConfirmationQst, true) then
+                        exit;
+
+                    this.CronJobMgmt.CreateItemFromLRIProduct();
+                end;
             }
             action("Fetch LRI Item")
             {
@@ -86,4 +97,6 @@ page 66003 "LRI Items"
             }
         }
     }
+    var
+        CronJobMgmt: Codeunit "Cron Job Mgmt.";
 }

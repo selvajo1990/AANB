@@ -53,6 +53,10 @@ table 66002 "AANB Setup"
         {
             TableRelation = "API Template Setup";
         }
+        field(6000; "Item Nos"; Code[20])
+        {
+
+        }
     }
     keys
     {
