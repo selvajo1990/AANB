@@ -5,7 +5,6 @@ page 66004 "LRI Stock Movements"
     PageType = List;
     SourceTable = "LRI Stock Movement";
     UsageCategory = Lists;
-
     layout
     {
         area(Content)
@@ -79,15 +78,15 @@ page 66004 "LRI Stock Movements"
             }
         }
     }
-    actions
-    {
-        area(Processing)
-        {
-            action("Post Journal")
-            {
-                ToolTip = 'Executes the Post Journal action.';
+    // actions
+    // {
+    //     area(Processing)
+    //     {
+    //         action("Post Journal")
+    //         {
+    //             ToolTip = 'Executes the Post Journal action.';
 
-            }
-        }
-    }
+    //         }
+    //     }
+    // }
 }

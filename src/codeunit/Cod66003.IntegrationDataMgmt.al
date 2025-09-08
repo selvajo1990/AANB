@@ -13,24 +13,24 @@ codeunit 66003 "Integration Data Mgmt."
 
     procedure CreateItem()
     var
+        ItemL: Record Item;
         ItemRef: RecordRef;
-        Item: Record Item;
     begin
         this.AANBSetup.Get();
         this.AANBSetup.TestField("Default Item Template");
 
-        Item.Init();
-        Item."No." := this.LRIItem."Product Id";
-        Item.Insert(true);
+        ItemL.Init();
+        ItemL."No." := this.LRIItem."Product Id";
+        ItemL.Insert(true);
 
         this.ConfigTemplateHeader.Get(this.AANBSetup."Default Item Template");
 
-        ItemRef.GetTable(Item);
+        ItemRef.GetTable(ItemL);
         this.ConfigTemplateManagement.UpdateRecord(this.ConfigTemplateHeader, ItemRef);
-        ItemRef.SetTable(Item);
+        ItemRef.SetTable(ItemL);
 
-        Item.Description := this.LRIItem.Description;
-        Item.Modify(true);
+        ItemL.Description := this.LRIItem.Description;
+        ItemL.Modify(true);
     end;
 
 
@@ -41,11 +41,9 @@ codeunit 66003 "Integration Data Mgmt."
     end;
 
     var
-        JobType, ProductId : Code[20];
         ConfigTemplateHeader: Record "Config. Template Header";
         AANBSetup: Record "AANB Setup";
-        Item: Record Item;
         LRIItem: Record "LRI Item";
         ConfigTemplateManagement: Codeunit "Config. Template Management";
-        NoSeries: Codeunit "No. Series";
+        JobType: Code[20];
 }

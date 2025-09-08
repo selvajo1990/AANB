@@ -3,7 +3,6 @@ codeunit 66001 "AANB Integation Mgmt."
     procedure stockMovementTransaction(request: Text) response: Text
     var
         LRIStockMovement: Record "LRI Stock Movement";
-        Item: Record Item;
         JObject: JsonObject;
         JToken: JsonToken;
         JArray: JsonArray;
@@ -20,8 +19,8 @@ codeunit 66001 "AANB Integation Mgmt."
             JArray.Get(Counter, JToken);
 
             LRIStockMovement.Init();
-            LRIStockMovement."Document No." := this.CodeValue('documentNo', JToken);
-            LRIStockMovement."Product Id" := this.CodeValue('productId', JToken);
+            LRIStockMovement."Document No." := CopyStr(this.CodeValue('documentNo', JToken), 1, MaxStrLen(LRIStockMovement."Document No."));
+            LRIStockMovement."Product Id" := CopyStr(this.CodeValue('productId', JToken), 1, MaxStrLen(LRIStockMovement."Product Id"));
             LRIStockMovement.Description := CopyStr(this.TextValueMaximum('description', JToken), 1, MaxStrLen(LRIStockMovement.Description));
             LRIStockMovement.Qty := this.DecimalValue('qty', JToken);
             LRIStockMovement.Price := this.DecimalValue('price', JToken);
@@ -49,13 +48,13 @@ codeunit 66001 "AANB Integation Mgmt."
 
     procedure CreateJSONOrder(salesHeader: Record "Sales Header")
     var
+        SalesLine: Record "Sales Line";
+        AANBSetup: Record "AANB Setup";
         HeaderJsonObj: JsonObject;
         LinesJsonObj: JsonObject;
         DeliveryAddressJsonObj: JsonObject;
         BillingAddressJsonObj: JsonObject;
         JsonArray: JsonArray;
-        SalesLine: Record "Sales Line";
-        AANBSetup: Record "AANB Setup";
         Request: Text;
     begin
         AANBSetup.Get();

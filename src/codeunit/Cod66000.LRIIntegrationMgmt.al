@@ -4,17 +4,15 @@ codeunit 66000 "LRI Integration Mgmt."
     var
         APITransactionLog: Record "API Transaction Log";
         APITemplateSetup: Record "API Template Setup";
-        EnvironmentInformation: Codeunit "Environment Information";
-        EntryNo, ProductCount : Integer;
+        EntryNo: Integer;
         ProductObject: JsonObject;
-        ProductArray: JsonArray;
-        ResultToken, OrderToken : JsonToken;
+        OrderToken: JsonToken;
         ProductId: Text[100];
     begin
         this.AANBSetup.Get();
         this.AANBSetup.TestField("Product Fetch");
 
-        FetchApiTemplateSetup(this.AANBSetup."Product Fetch", ApiTemplateSetup);
+        this.FetchApiTemplateSetup(this.AANBSetup."Product Fetch", ApiTemplateSetup);
         ApiTemplateSetup.TestField(EndPoint);
         ApiTemplateSetup.TestField(Password);
         this.InitPostRequest();
@@ -39,13 +37,13 @@ codeunit 66000 "LRI Integration Mgmt."
 
         ProductId := this.TextValue('product_ref', OrderToken);
 
-        if not LRIItem.Get(ProductId) then begin
-            LRIItem.Init();
-            LRIItem."Product Id" := ProductId;
-            LRIItem.Description := this.TextValue('product_name', OrderToken);
-            LRIItem.Type := this.TextValue('type', OrderToken);
-            LRIItem."Is Active" := this.BooleanValue('is_active', OrderToken);
-            LRIItem.Insert();
+        if not this.LRIItem.Get(ProductId) then begin
+            this.LRIItem.Init();
+            this.LRIItem."Product Id" := CopyStr(ProductId, 1, MaxStrLen(this.LRIItem."Product Id"));
+            this.LRIItem.Description := this.TextValue('product_name', OrderToken);
+            this.LRIItem.Type := this.TextValue('type', OrderToken);
+            this.LRIItem."Is Active" := this.BooleanValue('is_active', OrderToken);
+            this.LRIItem.Insert();
         end;
 
     end;
