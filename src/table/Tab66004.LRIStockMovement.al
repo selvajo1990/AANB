@@ -11,14 +11,13 @@ table 66004 "LRI Stock Movement"
         field(2; "Document No."; Code[20])
         {
         }
-
+        field(3; "Product Id"; Code[20])
+        {
+        }
         field(200; "Entry Date"; Date)
         {
         }
         field(300; "Entry Time"; Time)
-        {
-        }
-        field(400; "Product Id"; Code[20])
         {
         }
         field(500; Description; Text[100])
@@ -57,7 +56,7 @@ table 66004 "LRI Stock Movement"
     }
     keys
     {
-        key(PK; "Entry Type", "Document No.")
+        key(PK; "Entry Type", "Document No.", "Product Id")
         {
             Clustered = true;
         }
