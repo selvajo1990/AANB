@@ -1,0 +1,17 @@
+{
+    "al.ruleSetPath": "./.vscode/my.ruleset.json",
+    "al.enableCodeAnalysis": true,
+    "al.codeAnalyzers": [
+        "${CodeCop}",
+        "${UICop}",
+        "${PerTenantExtensionCop}"
+    ],
+    "editor.formatOnSave": true,
+    "al.browser": "Edge",
+    "editor.semanticHighlighting.enabled": true,
+    "alOutline.completionProviders": [
+        "VariableDataTypes",
+        "VariableNamesWithType"
+    ],
+    "editor.inlayHints.enabled": "offUnlessPressed"
+}

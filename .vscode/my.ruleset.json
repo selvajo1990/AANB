@@ -1,0 +1,26 @@
+{
+    "name": "Ruleset_Override",
+    "description": "Unwanted Warning",
+    "rules": [
+        {
+            "id": "AA0215",
+            "action": "None",
+            "justification": "Stupid rule by MS"
+        },
+        {
+            "id": "AA0214",
+            "action": "None",
+            "justification": "Stupid rule by MS"
+        },
+        {
+            "id": "AA0072",
+            "action": "None",
+            "justification": "Stupid rule by MS"
+        },
+        {
+            "id": "AA0102",
+            "action": "None",
+            "justification": "field are defined by the vendor"
+        }
+    ]
+}
