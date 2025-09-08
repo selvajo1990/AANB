@@ -66,6 +66,10 @@ page 66002 "AANB Setup"
                 {
                     ToolTip = 'Specifies the value of the Product Fetch field.';
                 }
+                field("RCB No."; Rec."RCB No.")
+                {
+                    ToolTip = 'Specifies the value of the RCB No. field.';
+                }
             }
             group("No. Series")
             {

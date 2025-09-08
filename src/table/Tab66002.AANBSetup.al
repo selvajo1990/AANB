@@ -57,6 +57,9 @@ table 66002 "AANB Setup"
         {
 
         }
+        field(6500; "RCB No."; Text[100])
+        {
+        }
     }
     keys
     {

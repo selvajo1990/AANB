@@ -7,12 +7,28 @@
             "type": "al",
             "environmentType": "Sandbox",
             "environmentName": "Sandbox",
-            "tenant": "176e7a8d-cd94-4dc5-87b8-cd477c98277d",
+            "tenant": "44f9821d-530c-4426-8c79-af31860d68b5",
             "breakOnError": "All",
             "schemaUpdateMode": "ForceSync",
             "launchBrowser": true,
             "enableLongRunningSqlStatements": true,
             "enableSqlInformationDebugger": true
-        }
+        },
+        // {
+        //     "name": "API",
+        //     "type": "al",
+        //     "request": "attach",
+        //     "environmentType": "Sandbox",
+        //     "environmentName": "Sandbox",
+        //     "breakOnError": "ExcludeTry",
+        //     "tenant": "44f9821d-530c-4426-8c79-af31860d68b5",
+        //     "breakOnRecordWrite": "None",
+        //     "enableSqlInformationDebugger": true,
+        //     "enableLongRunningSqlStatements": true,
+        //     "longRunningSqlStatementsThreshold": 500,
+        //     "numberOfSqlStatements": 10,
+        //     "breakOnNext": "WebServiceClient",
+        //     "userId": "BC API"
+        // }
     ]
 }

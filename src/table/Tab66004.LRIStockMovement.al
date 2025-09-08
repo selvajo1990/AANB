@@ -5,12 +5,13 @@ table 66004 "LRI Stock Movement"
 
     fields
     {
-        field(1; "Document No."; Code[20])
+        field(1; "Entry Type"; Enum "LRI Stock Movement Type")
         {
         }
-        field(100; "Entry Type"; Enum "LRI Stock Movement Type")
+        field(2; "Document No."; Code[20])
         {
         }
+
         field(200; "Entry Date"; Date)
         {
         }
@@ -56,7 +57,7 @@ table 66004 "LRI Stock Movement"
     }
     keys
     {
-        key(PK; "Document No.")
+        key(PK; "Entry Type", "Document No.")
         {
             Clustered = true;
         }

@@ -8,7 +8,8 @@ codeunit 66001 "AANB Integation Mgmt."
         JToken: JsonToken;
         JArray: JsonArray;
         Counter: Integer;
-        StocksAddedTxt: Label 'Stocks added successfully!';
+        StocksAddedTxt: Label 'Transactions added successfully!';
+        TransactionAlreadyProcessedErr: Label 'Transaction posted in ERP for %1: %2, %3: %4. You are not allowed to change.', Comment = '%1,%2,%3,%4';
     begin
         JObject.ReadFrom(request);
         JObject.SelectToken('details', JToken);
@@ -35,10 +36,77 @@ codeunit 66001 "AANB Integation Mgmt."
             LRIStockMovement.SetRecFilter();
             if LRIStockMovement.IsEmpty() then
                 LRIStockMovement.Insert(true)
-            else
-                LRIStockMovement.Modify(true);
+            else begin
+                LRIStockMovement.FindFirst();
+                if not LRIStockMovement.Processed then
+                    LRIStockMovement.Modify(true)
+                else
+                    Error(TransactionAlreadyProcessedErr, LRIStockMovement.FieldCaption("Document No."), LRIStockMovement."Document No.", LRIStockMovement.FieldCaption("Entry Type"), LRIStockMovement."Entry Type");
+            end;
         end;
         exit(StocksAddedTxt);
+    end;
+
+    procedure CreateJSONOrder(salesHeader: Record "Sales Header")
+    var
+        HeaderJsonObj: JsonObject;
+        LinesJsonObj: JsonObject;
+        DeliveryAddressJsonObj: JsonObject;
+        BillingAddressJsonObj: JsonObject;
+        JsonArray: JsonArray;
+        SalesLine: Record "Sales Line";
+        AANBSetup: Record "AANB Setup";
+        Request: Text;
+    begin
+        AANBSetup.Get();
+        HeaderJsonObj.Add('rcb', '312');
+        HeaderJsonObj.Add('order_ref', salesHeader."No.");
+        HeaderJsonObj.Add('carrier_code', '');
+        HeaderJsonObj.Add('ttc', '');
+        HeaderJsonObj.Add('cash_on_delivery', '');
+        HeaderJsonObj.Add('b2b', '');
+        HeaderJsonObj.Add('order_date', salesHeader."Order Date");
+        DeliveryAddressJsonObj.Add('relay_point', '');
+        DeliveryAddressJsonObj.Add('delivery_firstname', salesHeader."Ship-to Name");
+        DeliveryAddressJsonObj.Add('delivery_lastname', salesHeader."Ship-to Name 2");
+        DeliveryAddressJsonObj.Add('delivery_company', '');
+        DeliveryAddressJsonObj.Add('delivery_address1', salesHeader."Ship-to Address");
+        DeliveryAddressJsonObj.Add('delivery_address2', salesHeader."Ship-to Address 2");
+        DeliveryAddressJsonObj.Add('delivery_address3', '');
+        DeliveryAddressJsonObj.Add('delivery_city', salesHeader."Ship-to City");
+        DeliveryAddressJsonObj.Add('delivery_postcode', salesHeader."Ship-to Post Code");
+        DeliveryAddressJsonObj.Add('delivery_region', salesHeader."Ship-to Country/Region Code");
+        DeliveryAddressJsonObj.Add('delivery_country_iso', salesHeader."Ship-to County");
+        DeliveryAddressJsonObj.Add('delivery_phone', salesHeader."Ship-to Phone No.");
+        DeliveryAddressJsonObj.Add('delivery_email', '');
+        HeaderJsonObj.Add('delivery_address', DeliveryAddressJsonObj);
+        BillingAddressJsonObj.Add('relay_point', '');
+        BillingAddressJsonObj.Add('billing_firstname', salesHeader."Sell-to Customer Name");
+        BillingAddressJsonObj.Add('billing_lastname', salesHeader."Sell-to Customer Name 2");
+        BillingAddressJsonObj.Add('billing_company', '');
+        BillingAddressJsonObj.Add('billing_address1', salesHeader."Sell-to Address");
+        BillingAddressJsonObj.Add('billing_address2', salesHeader."Sell-to Address 2");
+        BillingAddressJsonObj.Add('billing_address3', '');
+        BillingAddressJsonObj.Add('billing_city', salesHeader."Sell-to City");
+        BillingAddressJsonObj.Add('billing_postcode', salesHeader."Sell-to Post Code");
+        BillingAddressJsonObj.Add('billing_region', salesHeader."Sell-to Country/Region Code");
+        BillingAddressJsonObj.Add('billing_country_iso', salesHeader."Sell-to County");
+        BillingAddressJsonObj.Add('billing_phone', salesHeader."Sell-to Phone No.");
+        BillingAddressJsonObj.Add('billing_email', salesHeader."Sell-to E-Mail");
+        HeaderJsonObj.Add('billing_address', BillingAddressJsonObj);
+        SalesLine.SetRange("Document Type", salesHeader."Document Type");
+        SalesLine.SetRange("Document No.", salesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                Clear(LinesJsonObj);
+                LinesJsonObj.Add('product_ref', SalesLine."No.");
+                LinesJsonObj.Add('product_name', SalesLine.Description);
+                LinesJsonObj.Add('quantity', SalesLine.Quantity);
+                JsonArray.Add(LinesJsonObj);
+            until SalesLine.Next() = 0;
+        HeaderJsonObj.Add('items', JsonArray);
+        HeaderJsonObj.WriteTo(Request);
+        Message(Request);
     end;
 
     procedure TextValueMaximum(Path: Text[100]; JTokenIn: JsonToken): Text

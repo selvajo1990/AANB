@@ -15,6 +15,14 @@ page 66003 "LRI Items"
                 field("Product Id"; Rec."Product Id")
                 {
                     ToolTip = 'Specifies the value of the Product Id field.', Comment = '%';
+                    DrillDown = true;
+                    trigger OnDrillDown()
+                    var
+                        Item: Record Item;
+                    begin
+                        Item.Get(Rec."Product Id");
+                        Page.Run(Page::"Item Card", Item);
+                    end;
                 }
                 field(Description; Rec.Description)
                 {
@@ -71,7 +79,7 @@ page 66003 "LRI Items"
                 Image = ItemTracking;
                 trigger OnAction()
                 var
-                    ConfirmationQst: Label 'Do you want to Create all product In Item?';
+                    ConfirmationQst: Label 'Do you want to Create Item from LRI Item?';
                 begin
                     if not Confirm(ConfirmationQst, true) then
                         exit;
