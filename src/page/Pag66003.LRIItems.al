@@ -5,6 +5,7 @@ page 66003 "LRI Items"
     PageType = List;
     SourceTable = "LRI Item";
     UsageCategory = Lists;
+    Editable = false;
 
     layout
     {
@@ -85,6 +86,18 @@ page 66003 "LRI Items"
                         exit;
 
                     this.CronJobMgmt.CreateItemFromLRIProduct();
+                end;
+            }
+            action("JSON")
+            {
+                ApplicationArea = all;
+                ToolTip = 'Executes the JSON action.';
+                Image = CreateDocument;
+                trigger OnAction()
+                var
+                    IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+                begin
+                    IntegrationDataMgmt.CreateJSONOrder();
                 end;
             }
             action("Fetch LRI Item")

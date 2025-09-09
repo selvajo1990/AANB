@@ -1,7 +1,6 @@
 codeunit 66002 "Cron Job Mgmt."
 {
     procedure CreateItemFromLRIProduct()
-
     var
         IntegrationDataLog: Record "Integration Data Log";
         LRIItem: Record "LRI Item";
@@ -15,7 +14,7 @@ codeunit 66002 "Cron Job Mgmt."
         if LRIItem.FindSet() then
             repeat
                 Clear(IntegrationDataMgmt);
-                IntegrationDataMgmt.SetSyncData(LRIItem, Format(IntegrationDataType::"Create Item"));
+                IntegrationDataMgmt.SetItemSyncData(LRIItem, Format(IntegrationDataType::"Create Item"));
                 if not IntegrationDataMgmt.Run() then
                     IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Create Item"), LRIItem."Product Id", IntegrationDataLog."Record ID", StrSubstNo(FailedCommentTxt, 1) + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Create Item")
                 else begin
@@ -25,5 +24,10 @@ codeunit 66002 "Cron Job Mgmt."
                 end;
                 Commit();
             until LRIItem.Next() = 0;
+    end;
+
+    procedure PushSingleSalesOrderToLRI(SalesHeader: Record "Sales Header")
+    begin
+        // Check Status - Released
     end;
 }

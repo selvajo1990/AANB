@@ -46,6 +46,16 @@ table 66004 "LRI Stock Movement"
         }
         field(1200; Processed; Boolean)
         {
+            trigger OnValidate()
+            begin
+                if Rec.Processed then begin
+                    "Processed Date" := Today;
+                    "Processed Time" := Time;
+                end else begin
+                    "Processed Date" := 0D;
+                    "Processed Time" := 0T;
+                end;
+            end;
         }
         field(1300; "Processed Date"; Date)
         {

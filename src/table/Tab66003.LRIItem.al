@@ -21,8 +21,13 @@ table 66003 "LRI Item"
         {
             trigger OnValidate()
             begin
-                "Processed Date" := Today;
-                "Processed Time" := Time;
+                if Rec.Processed then begin
+                    "Processed Date" := Today;
+                    "Processed Time" := Time;
+                end else begin
+                    "Processed Date" := 0D;
+                    "Processed Time" := 0T;
+                end;
             end;
         }
         field(1500; "Processed Date"; Date)
