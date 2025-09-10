@@ -17,7 +17,6 @@ permissionset 66000 "AANB-Super"
         codeunit "AANB Integation Mgmt." = X,
         codeunit "Cron Job Mgmt." = X,
         codeunit "Integration Data Mgmt." = X,
-        codeunit "LRI Integration Mgmt." = X,
         page "AANB Setup" = X,
         page "API Template Setup List" = X,
         page "API Transaction Log List" = X,

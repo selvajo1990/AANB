@@ -14,10 +14,12 @@ codeunit 66002 "Cron Job Mgmt."
         if LRIItem.FindSet() then
             repeat
                 Clear(IntegrationDataMgmt);
-                IntegrationDataMgmt.SetItemSyncData(LRIItem, Format(IntegrationDataType::"Create Item"));
-                if not IntegrationDataMgmt.Run() then
-                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Create Item"), LRIItem."Product Id", IntegrationDataLog."Record ID", StrSubstNo(FailedCommentTxt, 1) + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Create Item")
-                else begin
+                IntegrationDataMgmt.SetItemData(LRIItem, Format(IntegrationDataType::"Create Item"));
+                if not IntegrationDataMgmt.Run() then begin
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Create Item"), LRIItem."Product Id", IntegrationDataLog."Record ID", StrSubstNo(FailedCommentTxt, 1) + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Create Item");
+                    if GuiAllowed then
+                        Message(GetLastErrorText());
+                end else begin
                     LRIItem.Validate(Processed, true);
                     LRIItem.Modify();
                     IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Create Item"), LRIItem."Product Id", IntegrationDataLog."Record ID", StrSubstNo(SuccessCommentTxt, 1), IntegrationDataLog."Integration Data Type"::Information);
@@ -26,8 +28,23 @@ codeunit 66002 "Cron Job Mgmt."
             until LRIItem.Next() = 0;
     end;
 
-    procedure PushSingleSalesOrderToLRI(SalesHeader: Record "Sales Header")
+    procedure PushSingleSalesOrderToLRI(var SalesHeader: Record "Sales Header")
+    var
+        IntegrationDataLog: Record "Integration Data Log";
+        IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+        IntegrationDataType: Enum "Integration Data Type";
+        SuccessCommentTxt: Label '%1 Order pushed to LRI', Comment = '%1';
+        FailedCommentTxt: Label '%1 Order not pushed to LRI. ', Comment = '%1';
     begin
-        // Check Status - Released
+        IntegrationDataMgmt.SetSalesOrderData(SalesHeader, Format(IntegrationDataType::"Push Order"));
+        if not IntegrationDataMgmt.Run() then begin
+            IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Push Order"), SalesHeader."No.", IntegrationDataLog."Record ID", StrSubstNo(FailedCommentTxt, 1) + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Push Order");
+            if GuiAllowed then
+                Message(GetLastErrorText());
+        end else begin
+            SalesHeader."Sent To LRI" := true;
+            SalesHeader.Modify();
+            IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Push Order"), SalesHeader."No.", IntegrationDataLog."Record ID", StrSubstNo(SuccessCommentTxt, 1), IntegrationDataLog."Integration Data Type"::Information);
+        end;
     end;
 }

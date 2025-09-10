@@ -14,4 +14,8 @@ enum 66003 "Integration Data Type"
     {
         Caption = 'Create Item';
     }
+    value(200; "Push Order")
+    {
+        Caption = 'Push Order';
+    }
 }

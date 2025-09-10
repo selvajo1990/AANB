@@ -76,7 +76,6 @@ page 66003 "LRI Items"
             {
                 ToolTip = 'Executes the Create Item action.';
                 ApplicationArea = All;
-                Caption = 'Create Item';
                 Image = ItemTracking;
                 trigger OnAction()
                 var
@@ -88,18 +87,6 @@ page 66003 "LRI Items"
                     this.CronJobMgmt.CreateItemFromLRIProduct();
                 end;
             }
-            action("JSON")
-            {
-                ApplicationArea = all;
-                ToolTip = 'Executes the JSON action.';
-                Image = CreateDocument;
-                trigger OnAction()
-                var
-                    IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
-                begin
-                    IntegrationDataMgmt.CreateJSONOrder();
-                end;
-            }
             action("Fetch LRI Item")
             {
                 Image = GetEntries;
@@ -107,13 +94,13 @@ page 66003 "LRI Items"
                 ToolTip = 'Executes the Fetch LRI Item action.';
                 trigger OnAction()
                 var
-                    LRIIntegrationMgmt: Codeunit "LRI Integration Mgmt.";
-                    ConfirmMsg: Label 'This action fetch item from LRI.Do you want to continue ?';
+                    IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+                    ConfirmMsg: Label 'This action fetch item from LRI. Do you want to continue?';
 
                 begin
                     if not Confirm(ConfirmMsg) then
                         exit;
-                    LRIIntegrationMgmt.ProductFetch();
+                    IntegrationDataMgmt.ProductFetch();
                 end;
             }
         }

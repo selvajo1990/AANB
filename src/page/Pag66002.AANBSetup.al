@@ -62,13 +62,30 @@ page 66002 "AANB Setup"
             }
             group(Product)
             {
-                field("Product Fetch"; Rec."Product Fetch")
-                {
-                    ToolTip = 'Specifies the value of the Product Fetch field.';
-                }
+
                 field("RCB No."; Rec."RCB No.")
                 {
                     ToolTip = 'Specifies the value of the RCB No. field.';
+                }
+            }
+            group(Integration)
+            {
+                group(LRI)
+                {
+                    field("Product Fetch"; Rec."Product Fetch")
+                    {
+                        ToolTip = 'Specifies the value of the Product Fetch field.';
+                    }
+                    field("Push Order"; Rec."Push Sales Order")
+                    {
+                        ToolTip = 'Specifies the value of the Push Sales Order field.';
+
+                    }
+
+                }
+                group("Woo Commerce")
+                {
+
                 }
             }
             group("No. Series")

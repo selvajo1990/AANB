@@ -53,6 +53,10 @@ table 66002 "AANB Setup"
         {
             TableRelation = "API Template Setup";
         }
+        field(5520; "Push Sales Order"; code[20])
+        {
+            TableRelation = "API Template Setup";
+        }
         field(6000; "Item Nos"; Code[20])
         {
 

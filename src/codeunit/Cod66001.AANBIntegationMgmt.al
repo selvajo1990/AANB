@@ -29,9 +29,9 @@ codeunit 66001 "AANB Integation Mgmt."
             LRIStockMovement."Entry Type" := this.EntryTypeEnum('entryType', JToken);
             LRIStockMovement."Entry Date" := this.DateValue('entryDate', JToken);
             LRIStockMovement."Entry Time" := this.TimeValue('entryTime', JToken);
-            LRIStockMovement."Location Code" := CopyStr(this.TextValueMaximum('locationCode', JToken), 1, MaxStrLen(LRIStockMovement."Location Code"));
-            LRIStockMovement."Reason Code" := CopyStr(this.TextValueMaximum('reasonCode', JToken), 1, MaxStrLen(LRIStockMovement."Reason Code"));
-            LRIStockMovement."Reason Description" := CopyStr(this.TextValueMaximum('reasonDescription', JToken), 1, MaxStrLen(LRIStockMovement."Reason Description"));
+            LRIStockMovement."Location Code" := CopyStr(this.CodeValue('locationCode', JToken), 1, MaxStrLen(LRIStockMovement."Location Code"));
+            LRIStockMovement."Reason Code" := CopyStr(this.CodeValue('reasonCode', JToken), 1, MaxStrLen(LRIStockMovement."Reason Code"));
+            LRIStockMovement."Reason Description" := CopyStr(this.TextValue('reasonDescription', JToken), 1, MaxStrLen(LRIStockMovement."Reason Description"));
             LRIStockMovement.SetRecFilter();
             if LRIStockMovement.IsEmpty() then
                 LRIStockMovement.Insert(true)
@@ -44,6 +44,18 @@ codeunit 66001 "AANB Integation Mgmt."
             end;
         end;
         exit(StocksAddedTxt);
+    end;
+
+    procedure TextValue(Path: Text[100]; JTokenIn: JsonToken): Text[100]
+    var
+        JTokenOut: JsonToken;
+    begin
+        if not JTokenIn.SelectToken(Path, JTokenOut) then
+            exit('');
+
+        if JTokenOut.AsValue().IsNull() then
+            exit('');
+        exit(CopyStr(JTokenOut.AsValue().AsText(), 1, 100));
     end;
 
     procedure TextValueMaximum(Path: Text[100]; JTokenIn: JsonToken): Text
