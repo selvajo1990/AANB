@@ -85,7 +85,7 @@ page 66003 "LRI Items"
                     if not Confirm(ConfirmationQst, true) then
                         exit;
 
-                    this.CronJobMgmt.CreateItemFromLRIProduct();
+                    this.CronJobMgmt.CreateAllItemFromLRIProduct();
                 end;
             }
             action("Fetch LRI Item")
@@ -102,7 +102,7 @@ page 66003 "LRI Items"
                 begin
                     if not Confirm(ConfirmMsg) then
                         exit;
-                    IntegrationDataMgmt.ProductFetch();
+                    IntegrationDataMgmt.ProductFetchFromLRI();
                 end;
             }
         }

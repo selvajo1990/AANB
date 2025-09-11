@@ -6,15 +6,15 @@ codeunit 66003 "Integration Data Mgmt."
     begin
         case this.JobType of
             Format(IntegrationDataTypeL::"Create Item"):
-                this.CreateItem();
+                this.CreateItemFromStaging();
             Format(IntegrationDataTypeL::"Push Order"):
-                this.PushSalesOrder();
+                this.PushSalesOrderToLRI();
             Format(IntegrationDataTypeL::"Fetch Item"):
-                this.ProductFetch();
+                this.ProductFetchFromLRI();
         end;
     end;
 
-    procedure CreateItem()
+    procedure CreateItemFromStaging()
     var
         ItemL: Record Item;
         ItemRef: RecordRef;
@@ -36,7 +36,7 @@ codeunit 66003 "Integration Data Mgmt."
         ItemL.Modify(true);
     end;
 
-    procedure PushSalesOrder()
+    procedure PushSalesOrderToLRI()
     var
         SalesLine: Record "Sales Line";
         APITemplateSetup: Record "API Template Setup";
@@ -149,7 +149,7 @@ codeunit 66003 "Integration Data Mgmt."
         end;
     end;
 
-    procedure ProductFetch()
+    procedure ProductFetchFromLRI()
     var
         APITransactionLog: Record "API Transaction Log";
         APITemplateSetup: Record "API Template Setup";
@@ -227,6 +227,11 @@ codeunit 66003 "Integration Data Mgmt."
     begin
         this.JobType := JobTypeP;
         this.SalesHeader := SalesHeaderP;
+    end;
+
+    procedure SetFetchAllProductData(JobTypeP: Code[20])
+    begin
+        this.JobType := JobTypeP;
     end;
 
     var

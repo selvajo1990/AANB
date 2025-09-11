@@ -1,6 +1,17 @@
 codeunit 66002 "Cron Job Mgmt."
 {
-    procedure CreateItemFromLRIProduct()
+    TableNo = "Job Queue Entry";
+    trigger OnRun()
+    begin
+        case Rec."Parameter String" of
+            'CreateAllItemFromLRIProduct':
+                this.CreateAllItemFromLRIProduct();
+            'FetchAllProductFromLRI':
+                this.FetchAllProductFromLRI();
+        end;
+    end;
+
+    procedure CreateAllItemFromLRIProduct()
     var
         IntegrationDataLog: Record "Integration Data Log";
         LRIItem: Record "LRI Item";
@@ -46,5 +57,22 @@ codeunit 66002 "Cron Job Mgmt."
             SalesHeader.Modify();
             IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Push Order"), SalesHeader."No.", IntegrationDataLog."Record ID", StrSubstNo(SuccessCommentTxt, 1), IntegrationDataLog."Integration Data Type"::Information);
         end;
+    end;
+
+    procedure FetchAllProductFromLRI()
+    var
+        IntegrationDataLog: Record "Integration Data Log";
+        IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+        IntegrationDataType: Enum "Integration Data Type";
+        SuccessCommentTxt: Label '%1 Order pushed to LRI', Comment = '%1';
+        FailedCommentTxt: Label '%1 Order not pushed to LRI. ', Comment = '%1';
+    begin
+        IntegrationDataMgmt.SetFetchAllProductData(Format(IntegrationDataType::"Fetch Item"));
+        if not IntegrationDataMgmt.Run() then begin
+            IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Fetch Item"), '', IntegrationDataLog."Record ID", StrSubstNo(FailedCommentTxt, 1) + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Fetch Item");
+            if GuiAllowed then
+                Message(GetLastErrorText());
+        end else
+            IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Fetch Item"), '', IntegrationDataLog."Record ID", StrSubstNo(SuccessCommentTxt, 1), IntegrationDataLog."Integration Data Type"::Information);
     end;
 }
