@@ -41,6 +41,7 @@ table 66003 "LRI Item"
         }
 
     }
+
     keys
     {
         key(PK; "Product Id")
@@ -48,4 +49,15 @@ table 66003 "LRI Item"
             Clustered = true;
         }
     }
+    trigger OnDelete()
+    var
+        Item: Record Item;
+        UserSetup: Record "User Setup";
+        BlockDeleteErr: Label 'You are not allowed to delete the order.';
+    begin
+        if not UserSetup.CallSuperAdminSilent() then
+            Error(BlockDeleteErr);
+        if Item.Get(Rec."Product Id") then
+            item.Delete(true);
+    end;
 }

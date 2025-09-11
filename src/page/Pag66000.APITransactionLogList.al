@@ -98,6 +98,17 @@ page 66000 "API Transaction Log List"
                 PromotedCategory = Process;
                 RunObject = report "Clear API Transaction Log";
             }
+            action("Integration Data Log")
+            {
+                ApplicationArea = All;
+                Image = LedgerBook;
+                PromotedOnly = true;
+                Promoted = true;
+                PromotedCategory = Process;
+                RunObject = page "Integration Data Log";
+                RunPageLink = "Document No." = field("Free Text 1");
+                ToolTip = 'Executes the Integration Data Log action.';
+            }
         }
     }
 

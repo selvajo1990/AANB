@@ -21,6 +21,7 @@ codeunit 66003 "Integration Data Mgmt."
     begin
         this.AANBSetup.Get();
         this.AANBSetup.TestField("Default Item Template");
+        // if ItemL.Get(this.LRIItem."Product Id") then
 
         ItemL.Init();
         ItemL."No." := this.LRIItem."Product Id";

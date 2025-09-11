@@ -39,6 +39,33 @@ codeunit 66002 "Cron Job Mgmt."
             until LRIItem.Next() = 0;
     end;
 
+    procedure CreateSelectedItemFromLRIProduct(var LRIItem: Record "LRI Item")
+    var
+        IntegrationDataLog: Record "Integration Data Log";
+        IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+        IntegrationDataType: Enum "Integration Data Type";
+        SuccessCommentTxt: Label '%1 item created', Comment = '%1';
+        FailedCommentTxt: Label '%1 item not created. ', Comment = '%1';
+    begin
+        LRIItem.SetRange("Is Active", true);
+        LRIItem.SetRange("Processed", false);
+        if LRIItem.FindSet() then
+            repeat
+                Clear(IntegrationDataMgmt);
+                IntegrationDataMgmt.SetItemData(LRIItem, Format(IntegrationDataType::"Create Item"));
+                if not IntegrationDataMgmt.Run() then begin
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Create Item"), LRIItem."Product Id", IntegrationDataLog."Record ID", StrSubstNo(FailedCommentTxt, 1) + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Create Item");
+                    if GuiAllowed then
+                        Message(GetLastErrorText());
+                end else begin
+                    LRIItem.Validate(Processed, true);
+                    LRIItem.Modify();
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Create Item"), LRIItem."Product Id", IntegrationDataLog."Record ID", StrSubstNo(SuccessCommentTxt, 1), IntegrationDataLog."Integration Data Type"::Information);
+                end;
+                Commit();
+            until LRIItem.Next() = 0;
+    end;
+
     procedure PushSingleSalesOrderToLRI(var SalesHeader: Record "Sales Header")
     var
         IntegrationDataLog: Record "Integration Data Log";
