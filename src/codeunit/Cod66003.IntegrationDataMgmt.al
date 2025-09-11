@@ -8,7 +8,9 @@ codeunit 66003 "Integration Data Mgmt."
             Format(IntegrationDataTypeL::"Create Item"):
                 this.CreateItem();
             Format(IntegrationDataTypeL::"Push Order"):
-                this.PushSingleSalesOrderToLRI();
+                this.PushSalesOrder();
+            Format(IntegrationDataTypeL::"Fetch Item"):
+                this.ProductFetch();
         end;
     end;
 
@@ -34,7 +36,7 @@ codeunit 66003 "Integration Data Mgmt."
         ItemL.Modify(true);
     end;
 
-    procedure PushSingleSalesOrderToLRI()
+    procedure PushSalesOrder()
     var
         SalesLine: Record "Sales Line";
         APITemplateSetup: Record "API Template Setup";
@@ -45,12 +47,15 @@ codeunit 66003 "Integration Data Mgmt."
         JArray: JsonArray;
         JToken: JsonToken;
         JObject: JsonObject;
-        InventoryUpdateTxt: Label '/%1', Comment = '%1';
     begin
         this.AANBSetup.Get();
         this.AANBSetup.TestField("Push Sales Order");
 
-        SalesHeaderObject.Add('rcb', '312');
+        this.FetchApiTemplateSetup(this.AANBSetup."Push Sales Order", ApiTemplateSetup);
+        ApiTemplateSetup.TestField(EndPoint);
+        ApiTemplateSetup.TestField(Password);
+
+        SalesHeaderObject.Add('rcb', this.AANBSetup."RCB No.");
         SalesHeaderObject.Add('order_ref', this.SalesHeader."No.");
         SalesHeaderObject.Add('carrier_code', 'SURPLACE');
         SalesHeaderObject.Add('ttc', '29.99');
@@ -102,18 +107,14 @@ codeunit 66003 "Integration Data Mgmt."
                                                  this.TransactionLog.Status::Processed, this.SalesHeader."No.", ApiTemplateSetup, '', this.Request);
         Commit();
 
-        this.FetchApiTemplateSetup(this.AANBSetup."Push Sales Order", ApiTemplateSetup);
-        ApiTemplateSetup.TestField(EndPoint);
-        ApiTemplateSetup.TestField(Password);
         this.InitPostRequest();
-
         this.Content.GetHeaders(this.Header);
         this.Content.WriteFrom(this.Request);
         this.Header.Clear();
         this.Header.Add('Content-Type', 'application/json');
         this.HttpRequest.GetHeaders(this.Header);
         this.Client.DefaultRequestHeaders.Add('X-AUTH-TOKEN', APITemplateSetup.Password);
-        this.Client.Post(ApiTemplateSetup.EndPoint + StrSubstNo(InventoryUpdateTxt, this.SalesHeader."No."), this.Content, this.HttpResponse);
+        this.Client.Post(ApiTemplateSetup.EndPoint, this.Content, this.HttpResponse);
         if this.HttpResponse.HttpStatusCode() in [200, 201] then begin
             this.HttpResponse.Content().ReadAs(this.Response);
             this.TransactionLog.TransactionLog(this.TransactionLog."Entry Type"::"Outgoing Response", this.EntryNo,
@@ -126,8 +127,8 @@ codeunit 66003 "Integration Data Mgmt."
             Commit();
             if GuiAllowed then begin
                 JObject.ReadFrom(this.Response);
-                JObject.SelectToken('errors', JToken);
-                JToken.WriteTo(this.Response);
+                JToken := JObject.AsToken();
+                this.Response := this.AANBIntegationMgmt.TextValueMaximum('message', JToken);
                 Error(this.Response);
             end;
         end;
@@ -137,8 +138,9 @@ codeunit 66003 "Integration Data Mgmt."
     var
         APITransactionLog: Record "API Transaction Log";
         APITemplateSetup: Record "API Template Setup";
-        ProductObject: JsonObject;
         OrderToken: JsonToken;
+        ItemToken: JsonToken;
+        OrderArray: JsonArray;
         ProductId: Text[100];
     begin
         this.AANBSetup.Get();
@@ -152,32 +154,31 @@ codeunit 66003 "Integration Data Mgmt."
         this.Header.Clear();
         this.Client.DefaultRequestHeaders.Add('X-AUTH-TOKEN', APITemplateSetup.Password);
         this.Client.Get(APITemplateSetup.EndPoint, this.HttpResponse);
-        EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Request", 0, APITransactionLog.Status::Processed, '', APITemplateSetup, '', APITemplateSetup.EndPoint);
+        this.EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Request", 0, APITransactionLog.Status::Processed, '', APITemplateSetup, '', APITemplateSetup.EndPoint);
         if this.HttpResponse.HttpStatusCode <> 200 then begin
             if this.HttpResponse.IsSuccessStatusCode then
                 this.HttpResponse.Content.ReadAs(this.Response);
-            APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Response", EntryNo, APITransactionLog.Status::Failed, '', APITemplateSetup, CopyStr(this.HttpResponse.ReasonPhrase(), 1, 2048), this.Response);
+            APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Response", this.EntryNo, APITransactionLog.Status::Failed, '', APITemplateSetup, CopyStr(this.HttpResponse.ReasonPhrase(), 1, 2048), this.Response);
             Commit();
             Error(this.HttpResponse.ReasonPhrase());
         end;
         this.HttpResponse.Content.ReadAs(this.Response);
-        EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Response", EntryNo, APITransactionLog.Status::Processed, '', APITemplateSetup, CopyStr(this.HttpResponse.ReasonPhrase(), 1, 2048), this.Response);
+        this.EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Response", this.EntryNo, APITransactionLog.Status::Processed, '', APITemplateSetup, CopyStr(this.HttpResponse.ReasonPhrase(), 1, 2048), this.Response);
         Commit();
 
-        ProductObject.ReadFrom(this.Response);
-        OrderToken := ProductObject.AsToken();
-
-        ProductId := AANBIntegationMgmt.TextValue('product_ref', OrderToken);
-
-        if not this.LRIItem.Get(ProductId) then begin
-            this.LRIItem.Init();
-            this.LRIItem."Product Id" := CopyStr(ProductId, 1, MaxStrLen(this.LRIItem."Product Id"));
-            this.LRIItem.Description := AANBIntegationMgmt.TextValue('product_name', OrderToken);
-            this.LRIItem.Type := AANBIntegationMgmt.TextValue('type', OrderToken);
-            this.LRIItem."Is Active" := AANBIntegationMgmt.BooleanValue('is_active', OrderToken);
-            this.LRIItem.Insert();
+        OrderToken.ReadFrom(this.Response);
+        OrderArray := OrderToken.AsArray();
+        foreach ItemToken in OrderArray do begin
+            ProductId := this.AANBIntegationMgmt.TextValue('product_ref', ItemToken);
+            if not this.LRIItem.Get(ProductId) then begin
+                this.LRIItem.Init();
+                this.LRIItem."Product Id" := CopyStr(ProductId, 1, MaxStrLen(this.LRIItem."Product Id"));
+                this.LRIItem.Description := this.AANBIntegationMgmt.TextValue('product_name', ItemToken);
+                this.LRIItem.Type := this.AANBIntegationMgmt.TextValue('type', ItemToken);
+                this.LRIItem."Is Active" := this.AANBIntegationMgmt.BooleanValue('is_active', ItemToken);
+                this.LRIItem.Insert();
+            end;
         end;
-
     end;
 
     procedure InitPostRequest()

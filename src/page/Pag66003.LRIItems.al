@@ -21,8 +21,8 @@ page 66003 "LRI Items"
                     var
                         Item: Record Item;
                     begin
-                        Item.Get(Rec."Product Id");
-                        Page.Run(Page::"Item Card", Item);
+                        if Item.Get(Rec."Product Id") then
+                            Page.Run(Page::"Item Card", Item);
                     end;
                 }
                 field(Description; Rec.Description)
