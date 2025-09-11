@@ -77,6 +77,7 @@ page 66003 "LRI Items"
                 ToolTip = 'Executes the Create Item action.';
                 ApplicationArea = All;
                 Image = ItemTracking;
+                Visible = false;
                 trigger OnAction()
                 var
                     ConfirmationQst: Label 'Do you want to Create Item from LRI Item?';
@@ -92,6 +93,7 @@ page 66003 "LRI Items"
                 Image = GetEntries;
                 ApplicationArea = All;
                 ToolTip = 'Executes the Fetch LRI Item action.';
+                Visible = false;
                 trigger OnAction()
                 var
                     IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
