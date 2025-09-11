@@ -62,43 +62,26 @@ page 66003 "LRI Items"
         {
             group(Admin)
             {
-                Visible = IsEditable;
-                actionref(CreateAllItem; "Create All Item From LRI")
-                {
-                }
+                Visible = this.IsEditable;
                 actionref(SeletedItem; "Create Item")
                 {
                 }
-                actionref(Delete; "Delete All")
+                actionref(Delete; "Delete Item")
                 {
                 }
             }
-            actionref(FetchLRIItem; "Fetch LRI Item")
+            actionref(FetchLRIItem; "Fetch Item from LRI")
             {
             }
-
-            actionref(DataLog; "Integration Data Log")
+            group(Related)
             {
+                actionref(DataLog; "Integration Data Log")
+                {
+                }
             }
         }
         area(Processing)
         {
-            action("Create All Item From LRI")
-            {
-                ToolTip = 'Executes the Create Item action.';
-                ApplicationArea = All;
-                Image = ItemTracking;
-                Enabled = this.IsEditable;
-                trigger OnAction()
-                var
-                    ConfirmationQst: Label 'Do you want to Create Item from LRI Item?';
-                begin
-                    if not Confirm(ConfirmationQst, true) then
-                        exit;
-
-                    this.CronJobMgmt.CreateAllItemFromLRIProduct();
-                end;
-            }
             action("Create Item")
             {
                 Image = ItemGroup;
@@ -108,7 +91,7 @@ page 66003 "LRI Items"
                 trigger OnAction()
                 var
                     LRIItem: Record "LRI Item";
-                    ConfirmationQst: Label 'Do you want to create only selected Item from LRI Item?';
+                    ConfirmationQst: Label 'Do you want to create item for selected LRI Items?';
                 begin
                     if not Confirm(ConfirmationQst, true) then
                         exit;
@@ -117,35 +100,35 @@ page 66003 "LRI Items"
                     this.CronJobMgmt.CreateSelectedItemFromLRIProduct(LRIItem);
                 end;
             }
-            action("Delete All")
+            action("Delete Item")
             {
                 ApplicationArea = All;
-                ToolTip = 'Specifies the delete all temp';
+                ToolTip = 'Specifies the delete item action';
                 Image = DeleteRow;
                 Enabled = this.IsEditable;
                 trigger OnAction()
                 var
                     LRIItem: Record "LRI Item";
-                    DeleteConfirmationQst: Label 'do you want to delete all the selected LRI Items?';
+                    DeleteConfirmationQst: Label 'Do you want to delete the selected Items?';
                 begin
                     if not Confirm(DeleteConfirmationQst) then
                         exit;
+
                     CurrPage.SetSelectionFilter(LRIItem);
                     LRIItem.DeleteAll(true)
                 end;
             }
 
-            action("Fetch LRI Item")
+            action("Fetch Item from LRI")
             {
-                Image = GetEntries;
                 ApplicationArea = All;
-                ToolTip = 'Executes the Fetch LRI Item action.';
+                Image = GetEntries;
+                ToolTip = 'Executes the Fetch Item from LRI action.';
                 Visible = false;
                 trigger OnAction()
                 var
                     IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
                     ConfirmMsg: Label 'This action fetch item from LRI. Do you want to continue?';
-
                 begin
                     if not Confirm(ConfirmMsg) then
                         exit;
