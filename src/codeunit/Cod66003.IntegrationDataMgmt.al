@@ -50,10 +50,25 @@ codeunit 66003 "Integration Data Mgmt."
     begin
         this.AANBSetup.Get();
         this.AANBSetup.TestField("Push Sales Order");
+        this.AANBSetup.TestField("RCB No.");
 
         this.FetchApiTemplateSetup(this.AANBSetup."Push Sales Order", ApiTemplateSetup);
         ApiTemplateSetup.TestField(EndPoint);
         ApiTemplateSetup.TestField(Password);
+
+        this.SalesHeader.TestField("Sell-to Customer Name");
+        this.SalesHeader.TestField("Sell-to Customer Name 2");
+        this.SalesHeader.TestField("Sell-to E-Mail");
+        this.SalesHeader.TestField("Sell-to Phone No.");
+        this.SalesHeader.TestField("Sell-to Address");
+
+        this.SalesHeader.TestField("Ship-to Name");
+        this.SalesHeader.TestField("Ship-to Name 2");
+        this.SalesHeader.TestField("Ship-to Phone No.");
+        this.SalesHeader.TestField("Ship-to Address");
+        this.SalesHeader.TestField("Ship-to City");
+        this.SalesHeader.TestField("Ship-to Country/Region Code");
+        this.SalesHeader.TestField("Ship-to Post Code");
 
         SalesHeaderObject.Add('rcb', this.AANBSetup."RCB No.");
         SalesHeaderObject.Add('order_ref', this.SalesHeader."No.");
