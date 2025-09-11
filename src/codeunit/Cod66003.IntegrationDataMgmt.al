@@ -55,6 +55,7 @@ codeunit 66003 "Integration Data Mgmt."
         this.FetchApiTemplateSetup(this.AANBSetup."Push Sales Order", ApiTemplateSetup);
         ApiTemplateSetup.TestField(EndPoint);
         ApiTemplateSetup.TestField(Password);
+        this.InitPostRequest();
 
         this.SalesHeader.TestField("Sell-to Customer Name");
         this.SalesHeader.TestField("Sell-to Customer Name 2");
@@ -122,7 +123,6 @@ codeunit 66003 "Integration Data Mgmt."
                                                  this.TransactionLog.Status::Processed, this.SalesHeader."No.", ApiTemplateSetup, '', this.Request);
         Commit();
 
-        this.InitPostRequest();
         this.Content.GetHeaders(this.Header);
         this.Content.WriteFrom(this.Request);
         this.Header.Clear();
