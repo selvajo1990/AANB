@@ -77,8 +77,9 @@ codeunit 66002 "Cron Job Mgmt."
         IntegrationDataMgmt.SetSalesOrderData(SalesHeader, Format(IntegrationDataType::"Push Order"));
         if not IntegrationDataMgmt.Run() then begin
             IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Push Order"), SalesHeader."No.", IntegrationDataLog."Record ID", StrSubstNo(FailedCommentTxt, 1) + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Push Order");
+            Commit();
             if GuiAllowed then
-                Message(GetLastErrorText());
+                Error(GetLastErrorText());
         end else begin
             SalesHeader."Sent To LRI" := true;
             SalesHeader.Modify();

@@ -46,4 +46,5 @@ pageextension 66000 "Sales Order" extends "Sales Order"
             }
         }
     }
+
 }
