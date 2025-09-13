@@ -1,12 +1,19 @@
 codeunit 66004 "AANB Event Mgmt."
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnAfterReleaseSalesDoc', '', false, false)]
-    [ErrorBehavior(ErrorBehavior::Collect)]
     local procedure ReleaseSalesDocument_OnAfterReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var LinesWereModified: Boolean; SkipWhseRequestOperations: Boolean)
+    var
+        CronJobMgmt: Codeunit "Cron Job Mgmt.";
+    begin
+        this.ValidateB2BSalesOrder(SalesHeader);
+        CronJobMgmt.PushSingleSalesOrderToLRI(SalesHeader);
+    end;
+
+    [ErrorBehavior(ErrorBehavior::Collect)]
+    local procedure ValidateB2BSalesOrder(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
-        CronJobMgmt: Codeunit "Cron Job Mgmt.";
         ErrorInfoL: ErrorInfo;
         InventoryNotExistErr: Label 'Inventory does''t exist for item no.: %1 (Available Inventory: %2, Expected Inventory: %3)', Comment = '%1,%2,%3';
     begin
@@ -30,10 +37,5 @@ codeunit 66004 "AANB Event Mgmt."
                     Error(ErrorInfoL);
                 end;
             until SalesLine.Next() = 0;
-
-        if HasCollectedErrors then
-            Error(GetCollectedErrors().Get(1).Message);
-
-        CronJobMgmt.PushSingleSalesOrderToLRI(SalesHeader);
     end;
 }
