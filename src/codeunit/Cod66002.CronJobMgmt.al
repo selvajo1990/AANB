@@ -103,4 +103,7 @@ codeunit 66002 "Cron Job Mgmt."
         end else
             IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Fetch Item"), '', IntegrationDataLog."Record ID", StrSubstNo(SuccessCommentTxt, 1), IntegrationDataLog."Integration Data Type"::Information);
     end;
+
+    // ProcessSelectedMovmentJournal();
+    // ProcessAllMovmentJournal();
 }

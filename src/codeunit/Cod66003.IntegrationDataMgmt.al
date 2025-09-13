@@ -197,6 +197,50 @@ codeunit 66003 "Integration Data Mgmt."
         end;
     end;
 
+    procedure PostMovementJournal()
+    begin
+        // AANB Setup  
+
+        // CryoSetup.Get();
+        // CryoSetup.TestField("Suggest Job Template Name");
+        // CryoSetup.TestField("Suggest Job Journal Batch");
+
+        // JobJnlLine.SetRange("Journal Template Name", JobJnlLine."Journal Template Name");
+        // JobJnlLine.SetRange("Journal Batch Name", JobJnlLine."Journal Batch Name");
+        // if JobJnlLine.FindLast() then;
+        // LineNo := JobJnlLine."Line No.";
+
+        // JobJnlLine.Init();
+        // LineNo := LineNo + 10000;
+        // JobJnlLine."Line No." := LineNo;
+        // JobJnlLine."Time Sheet No." := TimeSheetDetail."Time Sheet No.";
+        // JobJnlLine."Time Sheet Line No." := TimeSheetDetail."Time Sheet Line No.";
+        // JobJnlLine."Time Sheet Date" := TimeSheetDetail.Date;
+        // JobJnlLine.Validate("Job No.", TimeSheetDetail."Job No.");
+        // JobJnlLine."Source Code" := JobJnlTemplate."Source Code";
+        // if TimeSheetDetail."Job Task No." <> '' then
+        //     JobJnlLine.Validate("Job Task No.", TimeSheetDetail."Job Task No.");
+        // JobJnlLine.Validate(Type, JobJnlLine.Type::Resource);
+        // JobJnlLine.Validate("No.", TimeSheetHeader."Resource No.");
+        // if TempTimeSheetLine."Work Type Code" <> '' then
+        //     JobJnlLine.Validate("Work Type Code", TempTimeSheetLine."Work Type Code");
+        // JobJnlLine.Validate("Posting Date", TimeSheetDetail.Date);
+        // JobJnlLine."Document No." := NextDocNo;
+        // NextDocNo := IncStr(NextDocNo);
+        // JobJnlLine."Posting No. Series" := JobJnlBatch."Posting No. Series";
+        // JobJnlLine.Description := TempTimeSheetLine.Description;
+        // JobJnlLine.Validate(Quantity, QtyToPost);
+        // JobJnlLine.Validate(Chargeable, TempTimeSheetLine.Chargeable);
+        // JobJnlLine."Reason Code" := JobJnlBatch."Reason Code";
+        // OnAfterTransferTimeSheetDetailToJobJnlLine(JobJnlLine, JobJnlTemplate, TempTimeSheetLine, TimeSheetDetail, JobJnlBatch, LineNo);
+        // JobJnlLine.Insert();
+
+        //  JobJnlPostBatch: Codeunit "Job Jnl.-Post Batch";
+        // JobJnlPostBatch.SetSuppressCommit(true);
+        // if not JobJnlPostBatch.Run(JobJnlLine) then
+        // Error();
+    end;
+
     procedure InitPostRequest()
     begin
         Clear(this.Request);
