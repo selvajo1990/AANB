@@ -11,6 +11,8 @@ codeunit 66003 "Integration Data Mgmt."
                 this.PushSalesOrderToLRI();
             Format(IntegrationDataTypeL::"Fetch Item"):
                 this.ProductFetchFromLRI();
+            Format(IntegrationDataTypeL::"Post Movement"):
+                this.PostMovementJournal();
         end;
     end;
 
@@ -198,47 +200,50 @@ codeunit 66003 "Integration Data Mgmt."
     end;
 
     procedure PostMovementJournal()
+    Var
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJnlPostBatch: Codeunit "Item Jnl.-Post Batch";
+        ItemJournalPostErr: Label 'Items not able to post';
     begin
-        // AANB Setup  
+        this.AANBSetup.Get();
+        this.AANBSetup.TestField("Purchase Template Name");
+        this.AANBSetup.TestField("Purchase Batch Name");
+        this.AANBSetup.TestField("Sales Template Name");
+        this.AANBSetup.TestField("Sales Batch Name");
+        this.AANBSetup.TestField("Purchase Return Template Name");
+        this.AANBSetup.TestField("Purchase Return Batch Name");
+        this.AANBSetup.TestField("Sales Return Template Name");
+        this.AANBSetup.TestField("Sales Return Batch Name");
 
-        // CryoSetup.Get();
-        // CryoSetup.TestField("Suggest Job Template Name");
-        // CryoSetup.TestField("Suggest Job Journal Batch");
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
 
-        // JobJnlLine.SetRange("Journal Template Name", JobJnlLine."Journal Template Name");
-        // JobJnlLine.SetRange("Journal Batch Name", JobJnlLine."Journal Batch Name");
-        // if JobJnlLine.FindLast() then;
-        // LineNo := JobJnlLine."Line No.";
+        ItemJournalLine.DeleteAll();
+        ItemJournalLine.Init();
+        ItemJournalLine."Line No." := 10000;
+        ItemJournalLine.Validate("Posting Date", this.LRIStockMovement."Entry Date");
+        case this.LRIStockMovement."Entry Type" of
+            this.LRIStockMovement."Entry Type"::Purchase:
+                ItemJournalLine."Entry Type" := "Item Ledger Entry Type"::Purchase;
+            this.LRIStockMovement."Entry Type"::"Purchase Return":
+                ItemJournalLine."Entry Type" := "Item Ledger Entry Type"::"Negative Adjmt.";
+            this.LRIStockMovement."Entry Type"::Sales:
+                ItemJournalLine."Entry Type" := "Item Ledger Entry Type"::Sale;
+            this.LRIStockMovement."Entry Type"::"Sales Return":
+                ItemJournalLine."Entry Type" := "Item Ledger Entry Type"::"Positive Adjmt.";
+        end;
+        ItemJournalLine.Validate("Item No.", this.LRIStockMovement."Product Id");
+        ItemJournalLine.Validate(Description, this.LRIStockMovement.Description);
+        ItemJournalLine.Validate("Location Code", this.LRIStockMovement."Location Code");
+        ItemJournalLine.Validate(Quantity, this.LRIStockMovement.Qty);
+        if LRIStockMovement.Price <> 0 then
+            ItemJournalLine.Validate("Unit Amount", this.LRIStockMovement.Price);
+        ItemJournalLine.Insert();
+        Commit();
 
-        // JobJnlLine.Init();
-        // LineNo := LineNo + 10000;
-        // JobJnlLine."Line No." := LineNo;
-        // JobJnlLine."Time Sheet No." := TimeSheetDetail."Time Sheet No.";
-        // JobJnlLine."Time Sheet Line No." := TimeSheetDetail."Time Sheet Line No.";
-        // JobJnlLine."Time Sheet Date" := TimeSheetDetail.Date;
-        // JobJnlLine.Validate("Job No.", TimeSheetDetail."Job No.");
-        // JobJnlLine."Source Code" := JobJnlTemplate."Source Code";
-        // if TimeSheetDetail."Job Task No." <> '' then
-        //     JobJnlLine.Validate("Job Task No.", TimeSheetDetail."Job Task No.");
-        // JobJnlLine.Validate(Type, JobJnlLine.Type::Resource);
-        // JobJnlLine.Validate("No.", TimeSheetHeader."Resource No.");
-        // if TempTimeSheetLine."Work Type Code" <> '' then
-        //     JobJnlLine.Validate("Work Type Code", TempTimeSheetLine."Work Type Code");
-        // JobJnlLine.Validate("Posting Date", TimeSheetDetail.Date);
-        // JobJnlLine."Document No." := NextDocNo;
-        // NextDocNo := IncStr(NextDocNo);
-        // JobJnlLine."Posting No. Series" := JobJnlBatch."Posting No. Series";
-        // JobJnlLine.Description := TempTimeSheetLine.Description;
-        // JobJnlLine.Validate(Quantity, QtyToPost);
-        // JobJnlLine.Validate(Chargeable, TempTimeSheetLine.Chargeable);
-        // JobJnlLine."Reason Code" := JobJnlBatch."Reason Code";
-        // OnAfterTransferTimeSheetDetailToJobJnlLine(JobJnlLine, JobJnlTemplate, TempTimeSheetLine, TimeSheetDetail, JobJnlBatch, LineNo);
-        // JobJnlLine.Insert();
-
-        //  JobJnlPostBatch: Codeunit "Job Jnl.-Post Batch";
-        // JobJnlPostBatch.SetSuppressCommit(true);
-        // if not JobJnlPostBatch.Run(JobJnlLine) then
-        // Error();
+        ItemJnlPostBatch.SetSuppressCommit(true);
+        if not ItemJnlPostBatch.Run(ItemJournalLine) then
+            Error(GetLastErrorText());
     end;
 
     procedure InitPostRequest()
@@ -274,6 +279,12 @@ codeunit 66003 "Integration Data Mgmt."
         this.SalesHeader := SalesHeaderP;
     end;
 
+    procedure SetJournalData(LRIStockMovementp: Record "LRI Stock Movement"; JobTypeP: Code[20])
+    begin
+        this.JobType := JobTypeP;
+        this.LRIStockMovement := LRIStockMovementp;
+    end;
+
     procedure SetFetchAllProductData(JobTypeP: Code[20])
     begin
         this.JobType := JobTypeP;
@@ -284,6 +295,7 @@ codeunit 66003 "Integration Data Mgmt."
         AANBSetup: Record "AANB Setup";
         LRIItem: Record "LRI Item";
         SalesHeader: Record "Sales Header";
+        LRIStockMovement: Record "LRI Stock Movement";
         TransactionLog: Record "API Transaction Log";
         ConfigTemplateManagement: Codeunit "Config. Template Management";
         AANBIntegationMgmt: Codeunit "AANB Integation Mgmt.";

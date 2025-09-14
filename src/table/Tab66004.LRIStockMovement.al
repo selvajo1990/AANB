@@ -71,4 +71,13 @@ table 66004 "LRI Stock Movement"
             Clustered = true;
         }
     }
+    trigger OnDelete()
+    var
+        UserSetup: Record "User Setup";
+        BlockDeleteErr: Label 'You are not allowed to delete the order.';
+    begin
+        if not UserSetup.CallSuperAdminSilent() then
+            Error(BlockDeleteErr);
+
+    end;
 }

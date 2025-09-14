@@ -78,15 +78,83 @@ page 66004 "LRI Stock Movements"
             }
         }
     }
-    // actions
-    // {
-    //     area(Processing)
-    //     {
-    //         action("Post Journal")
-    //         {
-    //             ToolTip = 'Executes the Post Journal action.';
+    actions
+    {
+        area(Promoted)
+        {
+            group(Admin)
+            {
+                Visible = this.IsEditable;
+                actionref(SeletedItem; "Post Selected Movement")
+                {
+                }
+                actionref(All; "Post Movement")
+                {
+                }
+            }
+            group(Related)
+            {
+                actionref(DataLog; "Integration Data Log")
+                {
+                }
+            }
+        }
+        area(Processing)
+        {
+            action("Post Selected Movement")
+            {
+                Image = Post;
+                ApplicationArea = All;
+                Enabled = this.IsEditable;
+                ToolTip = 'Executes the Post Selected Movement action.';
+                trigger OnAction()
+                var
+                    LRIStockMovement: Record "LRI Stock Movement";
+                    ConfirmationQst: Label 'Do you want to Post the selected stocks into item journal?';
+                begin
+                    if not Confirm(ConfirmationQst, true) then
+                        exit;
 
-    //         }
-    //     }
-    // }
+                    CurrPage.SetSelectionFilter(LRIStockMovement);
+                    this.CronJobMgmt.ProcessSelectedMovmentJournal(LRIStockMovement);
+                end;
+
+            }
+            action("Post Movement")
+            {
+                Image = PostBatch;
+                ApplicationArea = All;
+                Enabled = this.IsEditable;
+                ToolTip = 'Executes the Post Movement action.';
+                trigger OnAction()
+                var
+                    ConfirmationQst: Label 'Do you want to Post All stocks into item journal?';
+                begin
+                    if not Confirm(ConfirmationQst, true) then
+                        exit;
+
+                    this.CronJobMgmt.ProcessAllMovmentJournal();
+                end;
+
+            }
+            action("Integration Data Log")
+            {
+                ApplicationArea = All;
+                Image = LedgerBook;
+                RunObject = page "Integration Data Log";
+                RunPageLink = "Document No." = field("Product Id");
+                ToolTip = 'Executes the Integration Data Log action.';
+            }
+        }
+    }
+    trigger OnOpenPage()
+    begin
+        this.IsEditable := this.UserSetup.CallSuperAdminSilent();
+    end;
+
+    var
+        UserSetup: Record "User Setup";
+        CronJobMgmt: Codeunit "Cron Job Mgmt.";
+        IsEditable: Boolean;
+
 }

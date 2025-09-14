@@ -105,5 +105,56 @@ codeunit 66002 "Cron Job Mgmt."
     end;
 
     // ProcessSelectedMovmentJournal();
+    procedure ProcessSelectedMovmentJournal(var LRIStockMovement: Record "LRI Stock Movement")
+    var
+        IntegrationDataLog: Record "Integration Data Log";
+        IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+        IntegrationDataType: Enum "Integration Data Type";
+        SuccessCommentTxt: Label 'Selected Items posted in Item jourrnal';
+        FailedCommentTxt: Label 'Selected Items not posted to Item journal. ';
+    begin
+        LRIStockMovement.SetRange("Processed", false);
+        if LRIStockMovement.FindSet() then
+            repeat
+                Clear(IntegrationDataMgmt);
+                IntegrationDataMgmt.SetJournalData(LRIStockMovement, Format(IntegrationDataType::"Post Movement"));
+                if not IntegrationDataMgmt.Run() then begin
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
+                    if GuiAllowed then
+                        Message(GetLastErrorText());
+                end else begin
+                    LRIStockMovement.Validate(Processed, true);
+                    LRIStockMovement.Modify();
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
+                end;
+                Commit();
+            until LRIStockMovement.Next() = 0;
+    end;
     // ProcessAllMovmentJournal();
+    procedure ProcessAllMovmentJournal()
+    var
+        LRIStockMovement: Record "LRI Stock Movement";
+        IntegrationDataLog: Record "Integration Data Log";
+        IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+        IntegrationDataType: Enum "Integration Data Type";
+        SuccessCommentTxt: Label 'Items posted in Item jourrnal';
+        FailedCommentTxt: Label 'Items not posted to Item journal. ';
+    begin
+        LRIStockMovement.SetRange("Processed", false);
+        if LRIStockMovement.FindSet() then
+            repeat
+                Clear(IntegrationDataMgmt);
+                IntegrationDataMgmt.SetJournalData(LRIStockMovement, Format(IntegrationDataType::"Post Movement"));
+                if not IntegrationDataMgmt.Run() then begin
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
+                    if GuiAllowed then
+                        Message(GetLastErrorText());
+                end else begin
+                    LRIStockMovement.Validate(Processed, true);
+                    LRIStockMovement.Modify();
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
+                end;
+                Commit();
+            until LRIStockMovement.Next() = 0;
+    end;
 }

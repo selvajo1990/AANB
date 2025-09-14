@@ -17,4 +17,7 @@ enum 66003 "Integration Data Type"
     value(300; "Fetch Item")
     {
     }
+    value(400; "Post Movement")
+    {
+    }
 }
