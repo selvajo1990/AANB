@@ -21,9 +21,7 @@ codeunit 66003 "Integration Data Mgmt."
         ItemL: Record Item;
         ItemRef: RecordRef;
     begin
-        this.AANBSetup.Get();
         this.AANBSetup.TestField("Default Item Template");
-        // if ItemL.Get(this.LRIItem."Product Id") then
 
         ItemL.Init();
         ItemL."No." := this.LRIItem."Product Id";
@@ -51,7 +49,6 @@ codeunit 66003 "Integration Data Mgmt."
         JToken: JsonToken;
         JObject: JsonObject;
     begin
-        this.AANBSetup.Get();
         this.AANBSetup.TestField("Push Sales Order");
         this.AANBSetup.TestField("RCB No.");
 
@@ -161,7 +158,6 @@ codeunit 66003 "Integration Data Mgmt."
         OrderArray: JsonArray;
         ProductId: Text[100];
     begin
-        this.AANBSetup.Get();
         this.AANBSetup.TestField("Product Fetch");
 
         this.FetchApiTemplateSetup(this.AANBSetup."Product Fetch", ApiTemplateSetup);
@@ -200,49 +196,84 @@ codeunit 66003 "Integration Data Mgmt."
     end;
 
     procedure PostMovementJournal()
-    Var
+    var
+        LastItemJournalLine: Record "Item Journal Line";
         ItemJournalLine: Record "Item Journal Line";
         ItemJnlPostBatch: Codeunit "Item Jnl.-Post Batch";
-        ItemJournalPostErr: Label 'Items not able to post';
+        ItemJournalEntryType: Enum "Item Journal Entry Type";
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
-        this.AANBSetup.Get();
-        this.AANBSetup.TestField("Purchase Template Name");
-        this.AANBSetup.TestField("Purchase Batch Name");
-        this.AANBSetup.TestField("Sales Template Name");
-        this.AANBSetup.TestField("Sales Batch Name");
-        this.AANBSetup.TestField("Purchase Return Template Name");
-        this.AANBSetup.TestField("Purchase Return Batch Name");
-        this.AANBSetup.TestField("Sales Return Template Name");
-        this.AANBSetup.TestField("Sales Return Batch Name");
-
-        ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
-        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
-
-        ItemJournalLine.DeleteAll();
-        ItemJournalLine.Init();
-        ItemJournalLine."Line No." := 10000;
-        ItemJournalLine.Validate("Posting Date", this.LRIStockMovement."Entry Date");
         case this.LRIStockMovement."Entry Type" of
             this.LRIStockMovement."Entry Type"::Purchase:
-                ItemJournalLine."Entry Type" := "Item Ledger Entry Type"::Purchase;
+                begin
+                    this.AANBSetup.TestField("Purchase Template Name");
+                    this.AANBSetup.TestField("Purchase Batch Name");
+
+                    ItemJournalEntryType := "Item Ledger Entry Type"::Purchase;
+
+                    TemplateName := this.AANBSetup."Purchase Template Name";
+                    BatchName := this.AANBSetup."Purchase Batch Name";
+                end;
             this.LRIStockMovement."Entry Type"::"Purchase Return":
-                ItemJournalLine."Entry Type" := "Item Ledger Entry Type"::"Negative Adjmt.";
+                begin
+                    this.AANBSetup.TestField("Purchase Return Template Name");
+                    this.AANBSetup.TestField("Purchase Return Batch Name");
+
+                    ItemJournalEntryType := "Item Ledger Entry Type"::"Negative Adjmt.";
+
+                    TemplateName := this.AANBSetup."Purchase Return Template Name";
+                    BatchName := this.AANBSetup."Purchase Return Batch Name";
+                end;
             this.LRIStockMovement."Entry Type"::Sales:
-                ItemJournalLine."Entry Type" := "Item Ledger Entry Type"::Sale;
+                begin
+                    this.AANBSetup.TestField("Sales Template Name");
+                    this.AANBSetup.TestField("Sales Batch Name");
+
+                    ItemJournalEntryType := "Item Ledger Entry Type"::Sale;
+
+                    TemplateName := this.AANBSetup."Sales Template Name";
+                    BatchName := this.AANBSetup."Sales Batch Name";
+                end;
             this.LRIStockMovement."Entry Type"::"Sales Return":
-                ItemJournalLine."Entry Type" := "Item Ledger Entry Type"::"Positive Adjmt.";
+                begin
+                    this.AANBSetup.TestField("Sales Return Template Name");
+                    this.AANBSetup.TestField("Sales Return Batch Name");
+
+                    ItemJournalEntryType := "Item Ledger Entry Type"::"Positive Adjmt.";
+
+                    TemplateName := this.AANBSetup."Sales Return Template Name";
+                    BatchName := this.AANBSetup."Sales Return Batch Name";
+                end;
         end;
+
+        ItemJournalLine.SetRange("Journal Template Name", TemplateName);
+        ItemJournalLine.SetRange("Journal Batch Name", BatchName);
+        ItemJournalLine.DeleteAll();
+
+        LastItemJournalLine."Journal Template Name" := TemplateName;
+        LastItemJournalLine."Journal Batch Name" := BatchName;
+        LastItemJournalLine."Entry Type" := ItemJournalEntryType;
+
+        ItemJournalLine.Init();
+        ItemJournalLine.Validate("Journal Template Name", TemplateName);
+        ItemJournalLine.Validate("Journal Batch Name", BatchName);
+        ItemJournalLine.SetUpNewLine(LastItemJournalLine);
+        ItemJournalLine."Line No." := 10000;
+        ItemJournalLine."Document No." := this.LRIStockMovement."Document No.";
+        ItemJournalLine.Validate("Entry Type", ItemJournalEntryType);
+        ItemJournalLine.Validate("Posting Date", this.LRIStockMovement."Entry Date");
         ItemJournalLine.Validate("Item No.", this.LRIStockMovement."Product Id");
-        ItemJournalLine.Validate(Description, this.LRIStockMovement.Description);
         ItemJournalLine.Validate("Location Code", this.LRIStockMovement."Location Code");
         ItemJournalLine.Validate(Quantity, this.LRIStockMovement.Qty);
-        if LRIStockMovement.Price <> 0 then
+        if this.LRIStockMovement.Price > 0 then
             ItemJournalLine.Validate("Unit Amount", this.LRIStockMovement.Price);
         ItemJournalLine.Insert();
-        Commit();
 
         ItemJnlPostBatch.SetSuppressCommit(true);
-        if not ItemJnlPostBatch.Run(ItemJournalLine) then
+        ItemJnlPostBatch.Run(ItemJournalLine);
+
+        if GetLastErrorText() > '' then
             Error(GetLastErrorText());
     end;
 
@@ -267,27 +298,31 @@ codeunit 66003 "Integration Data Mgmt."
             APITemplateSetupP.Get(TemplateCode, APITemplateSetupP."Environment Type"::Production)
     end;
 
-    procedure SetItemData(LRIItemP: Record "LRI Item"; JobTypeP: Code[20])
+    procedure SetItemData(LRIItemP: Record "LRI Item"; JobTypeP: Code[20]; AANBSetupP: Record "AANB Setup")
     begin
         this.JobType := JobTypeP;
         this.LRIItem := LRIItemP;
+        this.AANBSetup := AANBSetupP;
     end;
 
-    procedure SetSalesOrderData(SalesHeaderP: Record "Sales Header"; JobTypeP: Code[20])
+    procedure SetSalesOrderData(SalesHeaderP: Record "Sales Header"; JobTypeP: Code[20]; AANBSetupP: Record "AANB Setup")
     begin
         this.JobType := JobTypeP;
         this.SalesHeader := SalesHeaderP;
+        this.AANBSetup := AANBSetupP;
     end;
 
-    procedure SetJournalData(LRIStockMovementp: Record "LRI Stock Movement"; JobTypeP: Code[20])
+    procedure SetJournalData(LRIStockMovementp: Record "LRI Stock Movement"; JobTypeP: Code[20]; AANBSetupP: Record "AANB Setup")
     begin
         this.JobType := JobTypeP;
         this.LRIStockMovement := LRIStockMovementp;
+        this.AANBSetup := AANBSetupP;
     end;
 
-    procedure SetFetchAllProductData(JobTypeP: Code[20])
+    procedure SetFetchAllProductData(JobTypeP: Code[20]; AANBSetupP: Record "AANB Setup")
     begin
         this.JobType := JobTypeP;
+        this.AANBSetup := AANBSetupP;
     end;
 
     var

@@ -88,9 +88,6 @@ page 66004 "LRI Stock Movements"
                 actionref(SeletedItem; "Post Selected Movement")
                 {
                 }
-                actionref(All; "Post Movement")
-                {
-                }
             }
             group(Related)
             {
@@ -110,30 +107,14 @@ page 66004 "LRI Stock Movements"
                 trigger OnAction()
                 var
                     LRIStockMovement: Record "LRI Stock Movement";
+                    CronJobMgmt: Codeunit "Cron Job Mgmt.";
                     ConfirmationQst: Label 'Do you want to Post the selected stocks into item journal?';
                 begin
                     if not Confirm(ConfirmationQst, true) then
                         exit;
 
                     CurrPage.SetSelectionFilter(LRIStockMovement);
-                    this.CronJobMgmt.ProcessSelectedMovmentJournal(LRIStockMovement);
-                end;
-
-            }
-            action("Post Movement")
-            {
-                Image = PostBatch;
-                ApplicationArea = All;
-                Enabled = this.IsEditable;
-                ToolTip = 'Executes the Post Movement action.';
-                trigger OnAction()
-                var
-                    ConfirmationQst: Label 'Do you want to Post All stocks into item journal?';
-                begin
-                    if not Confirm(ConfirmationQst, true) then
-                        exit;
-
-                    this.CronJobMgmt.ProcessAllMovmentJournal();
+                    CronJobMgmt.ProcessSelectedMovmentJournal(LRIStockMovement);
                 end;
 
             }
@@ -154,7 +135,6 @@ page 66004 "LRI Stock Movements"
 
     var
         UserSetup: Record "User Setup";
-        CronJobMgmt: Codeunit "Cron Job Mgmt.";
         IsEditable: Boolean;
 
 }
