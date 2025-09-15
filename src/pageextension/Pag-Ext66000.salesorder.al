@@ -2,12 +2,17 @@ pageextension 66000 "Sales Order" extends "Sales Order"
 {
     layout
     {
-        addafter("External Document No.")
+        addafter(Status)
         {
             field("Order Type"; Rec."Order Type")
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Order Type field.';
+            }
+            field("Sent To LRI"; Rec."Sent To LRI")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the Sent To LRI field.';
             }
         }
         addafter("Sell-to Customer Name")

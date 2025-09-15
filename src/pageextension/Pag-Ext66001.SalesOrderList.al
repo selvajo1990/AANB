@@ -2,16 +2,13 @@ pageextension 66001 "Sales Order List" extends "Sales Order List"
 {
     layout
     {
-        addbefore("Sell-to Customer No.")
+        addafter(Status)
         {
             field("Order Type"; Rec."Order Type")
             {
                 ApplicationArea = All;
                 ToolTip = 'Specifies the value of the Order Type field.';
             }
-        }
-        addafter(Status)
-        {
             field("Sent To LRI"; Rec."Sent To LRI")
             {
                 ApplicationArea = All;

@@ -87,7 +87,9 @@ codeunit 66002 "Cron Job Mgmt."
         end else begin
             SalesHeader."Sent To LRI" := true;
             SalesHeader.Modify();
+            Commit();
             IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Push Order"), SalesHeader."No.", IntegrationDataLog."Record ID", StrSubstNo(SuccessCommentTxt, 1), IntegrationDataLog."Integration Data Type"::Information);
+            Commit();
         end;
     end;
 
