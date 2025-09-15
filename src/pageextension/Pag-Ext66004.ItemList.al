@@ -1,7 +1,5 @@
-pageextension 66003 "Item Card" extends "Item Card"
+pageextension 66004 "Item List" extends "Item List"
 {
-    DeleteAllowed = false;
-    InsertAllowed = false;
     actions
     {
         modify(Category_New)

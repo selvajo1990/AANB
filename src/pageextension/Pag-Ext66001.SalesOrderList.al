@@ -27,6 +27,9 @@ pageextension 66001 "Sales Order List" extends "Sales Order List"
             actionref(PushSalesOrder_; "Push Sales Order")
             {
             }
+            actionref(DataLog; "Integration Data Log")
+            {
+            }
         }
         addafter(PostedSalesInvoices)
         {
@@ -44,6 +47,14 @@ pageextension 66001 "Sales Order List" extends "Sales Order List"
                         exit;
                     CronJobMgmt.PushSingleSalesOrderToLRI(Rec);
                 end;
+            }
+            action("Integration Data Log")
+            {
+                ApplicationArea = All;
+                Image = LedgerBook;
+                RunObject = page "Integration Data Log";
+                RunPageLink = "Document No." = field("No.");
+                ToolTip = 'Executes the Integration Data Log action.';
             }
         }
     }
