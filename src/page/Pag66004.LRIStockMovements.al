@@ -97,6 +97,9 @@ page 66004 "LRI Stock Movements"
                 actionref(ItemLedger; "Item Ledger Entries")
                 {
                 }
+                actionref(Item_; Item)
+                {
+                }
             }
         }
         area(Processing)
@@ -135,6 +138,15 @@ page 66004 "LRI Stock Movements"
                 RunObject = page "Item Ledger Entries";
                 RunPageLink = "Item No." = field("Product Id"), "Document No." = field("Document No."), "Posting Date" = field("Entry Date");
                 ToolTip = 'Executes the Item Ledger Entries action.';
+            }
+            action(Item)
+            {
+                ApplicationArea = All;
+                Image = Item;
+                RunObject = page "Item Card";
+                RunPageLink = "No." = field("Product Id");
+                RunPageMode = View;
+                ToolTip = 'Executes the Item action.';
             }
         }
     }
