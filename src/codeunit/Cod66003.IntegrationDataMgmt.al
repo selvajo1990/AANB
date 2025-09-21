@@ -260,10 +260,12 @@ codeunit 66003 "Integration Data Mgmt."
         ItemJournalLine.Validate("Journal Batch Name", BatchName);
         ItemJournalLine.SetUpNewLine(LastItemJournalLine);
         ItemJournalLine."Line No." := 10000;
-        ItemJournalLine."Document No." := this.LRIStockMovement."Document No.";
         ItemJournalLine.Validate("Entry Type", ItemJournalEntryType);
+        ItemJournalLine."Document No." := this.LRIStockMovement."Document No.";
         ItemJournalLine.Validate("Posting Date", this.LRIStockMovement."Entry Date");
         ItemJournalLine.Validate("Item No.", this.LRIStockMovement."Product Id");
+        if ItemJournalLine.Description = '' then
+            ItemJournalLine.Description := this.LRIStockMovement.Description;
         ItemJournalLine.Validate("Location Code", this.LRIStockMovement."Location Code");
         ItemJournalLine.Validate(Quantity, this.LRIStockMovement.Qty);
         if this.LRIStockMovement.Price > 0 then

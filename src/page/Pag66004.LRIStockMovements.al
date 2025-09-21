@@ -94,6 +94,9 @@ page 66004 "LRI Stock Movements"
                 actionref(DataLog; "Integration Data Log")
                 {
                 }
+                actionref(ItemLedger; "Item Ledger Entries")
+                {
+                }
             }
         }
         area(Processing)
@@ -116,7 +119,6 @@ page 66004 "LRI Stock Movements"
                     CurrPage.SetSelectionFilter(LRIStockMovement);
                     CronJobMgmt.ProcessSelectedMovmentJournal(LRIStockMovement);
                 end;
-
             }
             action("Integration Data Log")
             {
@@ -125,6 +127,14 @@ page 66004 "LRI Stock Movements"
                 RunObject = page "Integration Data Log";
                 RunPageLink = "Document No." = field("Product Id");
                 ToolTip = 'Executes the Integration Data Log action.';
+            }
+            action("Item Ledger Entries")
+            {
+                ApplicationArea = All;
+                Image = ItemLedger;
+                RunObject = page "Item Ledger Entries";
+                RunPageLink = "Item No." = field("Product Id"), "Document No." = field("Document No."), "Posting Date" = field("Entry Date");
+                ToolTip = 'Executes the Item Ledger Entries action.';
             }
         }
     }

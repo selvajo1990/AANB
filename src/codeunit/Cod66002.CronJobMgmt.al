@@ -8,6 +8,8 @@ codeunit 66002 "Cron Job Mgmt."
                 this.CreateAllItemFromLRIProduct();
             'FetchAllProductFromLRI':
                 this.FetchAllProductFromLRI();
+            'ProcessAllMovmentJournal':
+                this.ProcessAllMovmentJournal();
         end;
     end;
 
