@@ -50,4 +50,16 @@ codeunit 66004 "AANB Event Mgmt."
 
         SalesHeader.TestField("Sent To LRI", false);
     end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnValidateSellToCustomerNoOnBeforeValidateLocationCode', '', false, false)]
+    local procedure SalesHeader_OnValidateSellToCustomerNoOnBeforeValidateLocationCode(var SalesHeader: Record "Sales Header"; var Cust: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        if Cust."Customer Posting Group" = '' then
+            exit;
+
+        CustomerPostingGroup.Get(Cust."Customer Posting Group");
+        SalesHeader."Order Type" := CustomerPostingGroup."Order Type";
+    end;
 }

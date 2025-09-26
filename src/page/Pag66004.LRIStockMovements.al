@@ -31,21 +31,9 @@ page 66004 "LRI Stock Movements"
                 {
                     ToolTip = 'Specifies the value of the Qty field.', Comment = '%';
                 }
-                field(Price; Rec.Price)
-                {
-                    ToolTip = 'Specifies the value of the Price field.', Comment = '%';
-                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ToolTip = 'Specifies the value of the Location Code field.', Comment = '%';
-                }
-                field("Total Amount"; Rec."Total Amount")
-                {
-                    ToolTip = 'Specifies the value of the Total Amount field.', Comment = '%';
-                }
-                field("Total VAT Amount"; Rec."Total VAT Amount")
-                {
-                    ToolTip = 'Specifies the value of the Total VAT Amount field.', Comment = '%';
                 }
                 field("Entry Date"; Rec."Entry Date")
                 {
