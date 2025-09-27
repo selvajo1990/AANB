@@ -78,6 +78,9 @@ page 66003 "LRI Items"
                 actionref(DataLog; "Integration Data Log")
                 {
                 }
+                actionref(APILog; "API Transaction Log")
+                {
+                }
             }
         }
         area(Processing)
@@ -127,11 +130,16 @@ page 66003 "LRI Items"
                 Visible = false;
                 trigger OnAction()
                 var
+                    AANBSetup: Record "AANB Setup";
                     IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+                    IntegrationDataType: Enum "Integration Data Type";
                     ConfirmMsg: Label 'This action fetch item from LRI. Do you want to continue?';
                 begin
                     if not Confirm(ConfirmMsg) then
                         exit;
+
+                    AANBSetup.Get();
+                    IntegrationDataMgmt.SetFetchAllProductData(Format(IntegrationDataType::"Fetch Item"), AANBSetup);
                     IntegrationDataMgmt.ProductFetchFromLRI();
                 end;
             }
@@ -142,6 +150,13 @@ page 66003 "LRI Items"
                 RunObject = page "Integration Data Log";
                 RunPageLink = "Document No." = field("Product Id");
                 ToolTip = 'Executes the Integration Data Log action.';
+            }
+            action("API Transaction Log")
+            {
+                ApplicationArea = All;
+                Image = Log;
+                RunObject = page "API Transaction Log List";
+                ToolTip = 'Executes the API Transaction Log action.';
             }
         }
     }

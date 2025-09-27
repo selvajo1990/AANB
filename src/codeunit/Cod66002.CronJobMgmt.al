@@ -23,6 +23,7 @@ codeunit 66002 "Cron Job Mgmt."
         SuccessCommentTxt: Label '%1 item created', Comment = '%1';
         FailedCommentTxt: Label '%1 item not created. ', Comment = '%1';
     begin
+        AANBSetup.Get();
         LRIItem.SetRange("Is Active", true);
         LRIItem.SetRange("Processed", false);
         if LRIItem.FindSet() then
@@ -51,6 +52,7 @@ codeunit 66002 "Cron Job Mgmt."
         SuccessCommentTxt: Label '%1 item created', Comment = '%1';
         FailedCommentTxt: Label '%1 item not created. ', Comment = '%1';
     begin
+        AANBSetup.Get();
         LRIItem.SetRange("Is Active", true);
         LRIItem.SetRange("Processed", false);
         if LRIItem.FindSet() then

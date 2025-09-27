@@ -139,6 +139,68 @@ page 66002 "AANB Setup"
             }
         }
     }
+    actions
+    {
+        area(Promoted)
+        {
+            actionref(APITemplate; "API Template Setup")
+            {
+            }
+            actionref(LRIItem; "LRI Items")
+            {
+            }
+            actionref(LRIStockMovement; "LRI Stock Movements")
+            {
+            }
+            group(Log)
+            {
+                actionref(DataLog; "Integration Data Log")
+                {
+                }
+                actionref(APILog; "API Transaction Log")
+                {
+                }
+            }
+        }
+        area(Processing)
+        {
+            action("Integration Data Log")
+            {
+                ApplicationArea = All;
+                Image = LedgerBook;
+                RunObject = page "Integration Data Log";
+                ToolTip = 'Executes the Integration Data Log action.';
+            }
+            action("API Transaction Log")
+            {
+                ApplicationArea = All;
+                Image = Log;
+                RunObject = page "API Transaction Log List";
+                ToolTip = 'Executes the API Transaction Log action.';
+            }
+            action("LRI Items")
+            {
+                ApplicationArea = All;
+                Image = Item;
+                RunObject = page "LRI Items";
+                ToolTip = 'Executes the LRI Items action.';
+            }
+            action("LRI Stock Movements")
+            {
+                ApplicationArea = All;
+                Image = Transactions;
+                RunObject = page "LRI Stock Movements";
+                ToolTip = 'Executes the LRI Stock Movements action.';
+            }
+            action("API Template Setup")
+            {
+                ApplicationArea = All;
+                Image = Setup;
+                RunObject = page "API Template Setup List";
+                ToolTip = 'Executes the API Template Setup action.';
+            }
+        }
+    }
     trigger OnOpenPage()
     begin
         if not Rec.Get() then

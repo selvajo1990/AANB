@@ -7,11 +7,13 @@ pageextension 66000 "Sales Order" extends "Sales Order"
             field("Order Type"; Rec."Order Type")
             {
                 ApplicationArea = All;
+                Editable = false;
                 ToolTip = 'Specifies the value of the Order Type field.';
             }
             field("Sent To LRI"; Rec."Sent To LRI")
             {
                 ApplicationArea = All;
+                Editable = false;
                 ToolTip = 'Specifies the value of the Sent To LRI field.';
             }
         }
