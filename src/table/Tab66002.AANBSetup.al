@@ -33,6 +33,22 @@ table 66002 "AANB Setup"
         {
             TableRelation = "Item Journal Batch".Name where("Journal Template Name" = field("Sales Return Template Name"));
         }
+        field(1520; "Woo-Sales Template Name"; Code[10])
+        {
+            TableRelation = "Gen. Journal Template";
+        }
+        field(2020; "Woo-Sales Batch Name"; Code[10])
+        {
+            TableRelation = "Gen. Journal Batch".Name where("Journal Template Name" = field("Woo-Sales Template Name"));
+        }
+        field(2520; "Woo-Sales Return Template Name"; Code[10])
+        {
+            TableRelation = "Gen. Journal Template";
+        }
+        field(3020; "Woo-Sales Return Batch Name"; Code[10])
+        {
+            TableRelation = "Gen. Journal Batch".Name where("Journal Template Name" = field("Woo-Sales Return Template Name"));
+        }
         field(3500; "Purchase Template Name"; Code[10])
         {
             TableRelation = "Item Journal Template";
@@ -56,6 +72,30 @@ table 66002 "AANB Setup"
         field(5520; "Push Sales Order"; code[20])
         {
             TableRelation = "API Template Setup";
+        }
+        field(5540; "Order Fetch"; code[20])
+        {
+            TableRelation = "API Template Setup";
+        }
+        field(5541; "Fetch All Order"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            trigger OnValidate()
+            begin
+                if "Fetch All Order" then
+                    TestField("Fetch All Order Interval")
+                else
+                    this.TestField("Recurring Order Fetch Interval");
+            end;
+        }
+        field(5545; "Fetch All Order Interval"; Duration)
+        {
+        }
+        field(5550; "Recurring Order Fetch Interval"; Duration)
+        {
+        }
+        field(5555; "Last Modified Order TimeStamp"; DateTime)
+        {
         }
         field(6000; "Item Nos"; Code[20])
         {

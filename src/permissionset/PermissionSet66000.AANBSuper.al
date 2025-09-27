@@ -22,5 +22,10 @@ permissionset 66000 "AANB-Super"
         page "API Transaction Log List" = X,
         page "Integration Data Log" = X,
         page "LRI Items" = X,
-        page "LRI Stock Movements" = X;
+        page "LRI Stock Movements" = X,
+        tabledata "Woo Commerce Order Detail" = RIMD,
+        table "Woo Commerce Order Detail" = X,
+        codeunit "AANB Event Mgmt." = X,
+        codeunit "Fetch Woo Commerce Orders" = X,
+        page "Woo Commerce Order Details" = X;
 }
