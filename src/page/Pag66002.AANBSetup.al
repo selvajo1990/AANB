@@ -152,6 +152,9 @@ page 66002 "AANB Setup"
             actionref(LRIStockMovement; "LRI Stock Movements")
             {
             }
+            actionref(WooCommerceOrder; "Woo Commerce Order Details")
+            {
+            }
             group(Log)
             {
                 actionref(DataLog; "Integration Data Log")
@@ -191,6 +194,13 @@ page 66002 "AANB Setup"
                 Image = Transactions;
                 RunObject = page "LRI Stock Movements";
                 ToolTip = 'Executes the LRI Stock Movements action.';
+            }
+            action("Woo Commerce Order Details")
+            {
+                ApplicationArea = All;
+                Image = OrderList;
+                RunObject = page "Woo Commerce Order Details";
+                ToolTip = 'Executes the Woo Commerce Order Details action.';
             }
             action("API Template Setup")
             {

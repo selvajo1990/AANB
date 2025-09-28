@@ -2,8 +2,12 @@ codeunit 66002 "Cron Job Mgmt."
 {
     TableNo = "Job Queue Entry";
     trigger OnRun()
+    var
+        FetchWooCommerceOrders: Codeunit "Fetch Woo Commerce Orders";
     begin
         case Rec."Parameter String" of
+            'OrderFetchFromWoocommerce':
+                FetchWooCommerceOrders.OrderFetchFromWoocommerce();
             'CreateAllItemFromLRIProduct':
                 this.CreateAllItemFromLRIProduct();
             'FetchAllProductFromLRI':

@@ -9,7 +9,6 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         ResultToken, OrderToken, TaxToken, ItemLineToken : JsonToken;
         Amount: Decimal;
         LastRunTimeStamp, FetchUrl : Text;
-
     begin
         this.AANBSetup.Get();
         this.AANBSetup.TestField("Order Fetch");
@@ -36,10 +35,13 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         this.EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Response", this.EntryNo, APITransactionLog.Status::Processed, '', APITemplateSetup, CopyStr(this.HttpResponse.ReasonPhrase(), 1, 2048), this.Response);
         Commit();
 
+        this.AANBSetup."Last Modified Order TimeStamp" := CurrentDateTime;
+        this.AANBSetup.Modify();
+
         ResultToken.ReadFrom(this.Response);
         OrderArray := ResultToken.AsArray();
 
-        foreach orderToken in orderArray do
+        foreach OrderToken in OrderArray do
             if not WooCommerceOrderDetail.Get(WooCommerceOrderDetail."Order Type"::Order, this.TextValue('order_key', OrderToken)) then begin
                 WooCommerceOrderDetail.Init();
                 WooCommerceOrderDetail."Order Type" := WooCommerceOrderDetail."Order Type"::Order;
@@ -64,13 +66,10 @@ codeunit 66005 "Fetch Woo Commerce Orders"
 
                 OrderToken.SelectToken('tax_lines', TaxToken);
                 TaxArray := TaxToken.AsArray();
-                foreach Taxtoken in TaxArray do
+                foreach TaxToken in TaxArray do
                     WooCommerceOrderDetail."VAT %" := this.DecimalValue('rate_percent', TaxToken);
 
                 WooCommerceOrderDetail.Insert();
-
-                this.AANBSetup."Last Modified Order TimeStamp" := CurrentDateTime;
-                this.AANBSetup.Modify();
             end;
     end;
 

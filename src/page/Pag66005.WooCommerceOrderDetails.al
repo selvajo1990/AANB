@@ -5,6 +5,7 @@ page 66005 "Woo Commerce Order Details"
     PageType = List;
     SourceTable = "Woo Commerce Order Detail";
     UsageCategory = Lists;
+    Editable = false;
 
     layout
     {
@@ -91,12 +92,23 @@ page 66005 "Woo Commerce Order Details"
     {
         area(Promoted)
         {
-            actionref(FetchOrders; "Fetch Orders from Woo Commerce")
+            group(Admin)
             {
+                Visible = this.IsEditable;
+                actionref(FetchOrders; "Fetch Orders from Woo Commerce")
+                {
+                }
+                actionref(Delete; "Delete Order")
+                {
+                }
             }
+
             group(Related)
             {
                 actionref(DataLog; "Integration Data Log")
+                {
+                }
+                actionref(APILog; "API Transaction Log")
                 {
                 }
             }
@@ -127,6 +139,39 @@ page 66005 "Woo Commerce Order Details"
                 RunPageLink = "Document No." = field("Order No.");
                 ToolTip = 'Executes the Integration Data Log action.';
             }
+            action("Delete Order")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the delete order action';
+                Image = DeleteRow;
+                Enabled = this.IsEditable;
+                trigger OnAction()
+                var
+                    WooCommerceOrderDetail: Record "Woo Commerce Order Detail";
+                    DeleteConfirmationQst: Label 'Do you want to delete the selected orders?';
+                begin
+                    if not Confirm(DeleteConfirmationQst) then
+                        exit;
+
+                    CurrPage.SetSelectionFilter(WooCommerceOrderDetail);
+                    WooCommerceOrderDetail.DeleteAll(true)
+                end;
+            }
+            action("API Transaction Log")
+            {
+                ApplicationArea = All;
+                Image = Log;
+                RunObject = page "API Transaction Log List";
+                ToolTip = 'Executes the API Transaction Log action.';
+            }
         }
     }
+    trigger OnOpenPage()
+    begin
+        this.IsEditable := this.UserSetup.CallSuperAdminSilent();
+    end;
+
+    var
+        UserSetup: Record "User Setup";
+        IsEditable: Boolean;
 }
