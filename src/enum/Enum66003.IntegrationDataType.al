@@ -20,7 +20,7 @@ enum 66003 "Integration Data Type"
     value(400; "Post Movement")
     {
     }
-    value(500; "Process Order")
+    value(500; "Post Sales")
     {
     }
 }

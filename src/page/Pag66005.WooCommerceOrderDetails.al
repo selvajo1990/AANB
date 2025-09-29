@@ -98,6 +98,9 @@ page 66005 "Woo Commerce Order Details"
                 actionref(FetchOrders; "Fetch Orders from Woo Commerce")
                 {
                 }
+                actionref(PostJournal; "Post Selected Order(s)")
+                {
+                }
                 actionref(Delete; "Delete Order")
                 {
                 }
@@ -128,25 +131,26 @@ page 66005 "Woo Commerce Order Details"
                 begin
                     if not Confirm(ConfirmMsg) then
                         exit;
-                    FetchWoocommerceOrders.OrderFetchFromWoocommerce();
+                    FetchWoocommerceOrders.FetchOrderFromWoocommerce();
                 end;
             }
-            action("Post Orders")
+            action("Post Selected Order(s)")
             {
                 ApplicationArea = All;
                 Image = GetEntries;
-                ToolTip = 'Executes the post orders action.';
+                ToolTip = 'Executes the Post Selected Order(s) action.';
                 Visible = true;
                 trigger OnAction()
                 var
                     WooCommerceOrderDetail: Record "Woo Commerce Order Detail";
                     CronJobMgmt: Codeunit "Cron Job Mgmt.";
-                    ConfirmationQst: Label 'Do you want to Post the selected Orders into Sales journal?';
+                    ConfirmationQst: Label 'Do you want to post the sales journal for selected order(s)?';
                 begin
                     if not Confirm(ConfirmationQst) then
                         exit;
+
                     CurrPage.SetSelectionFilter(WooCommerceOrderDetail);
-                    CronJobMgmt.ProcessSelectedOrdersJournal(WooCommerceOrderDetail);
+                    CronJobMgmt.ProcessSelectedSalesJournal(WooCommerceOrderDetail);
                 end;
             }
             action("Integration Data Log")

@@ -35,22 +35,22 @@ table 66002 "AANB Setup"
         }
         field(1520; "Woo-Sales Template Name"; Code[10])
         {
-            Caption = 'Woo-Sales Template Name';
+            Caption = 'Sales Template Name';
             TableRelation = "Gen. Journal Template";
         }
         field(2020; "Woo-Sales Batch Name"; Code[10])
         {
-            Caption = 'Woo-Sales Batch Name';
+            Caption = 'Sales Batch Name';
             TableRelation = "Gen. Journal Batch".Name where("Journal Template Name" = field("Woo-Sales Template Name"));
         }
         field(2520; "Woo-Sales Return Template Name"; Code[10])
         {
-            Caption = 'Woo-Sales Return Template Name';
+            Caption = 'Sales Return Template Name';
             TableRelation = "Gen. Journal Template";
         }
         field(3020; "Woo-Sales Return Batch Name"; Code[10])
         {
-            Caption = 'Woo-Sales Return Batch Name';
+            Caption = 'Sales Return Batch Name';
             TableRelation = "Gen. Journal Batch".Name where("Journal Template Name" = field("Woo-Sales Return Template Name"));
         }
         field(3500; "Purchase Template Name"; Code[10])

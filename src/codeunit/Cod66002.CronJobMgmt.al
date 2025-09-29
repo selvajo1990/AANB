@@ -7,7 +7,7 @@ codeunit 66002 "Cron Job Mgmt."
     begin
         case Rec."Parameter String" of
             'OrderFetchFromWoocommerce':
-                FetchWooCommerceOrders.OrderFetchFromWoocommerce();
+                FetchWooCommerceOrders.FetchOrderFromWoocommerce();
             'CreateAllItemFromLRIProduct':
                 this.CreateAllItemFromLRIProduct();
             'FetchAllProductFromLRI':
@@ -127,8 +127,8 @@ codeunit 66002 "Cron Job Mgmt."
         AANBSetup: Record "AANB Setup";
         IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
         IntegrationDataType: Enum "Integration Data Type";
-        SuccessCommentTxt: Label '1 item posted';
-        FailedCommentTxt: Label '1 item not posted. ';
+        SuccessCommentTxt: Label '1 journal line posted';
+        FailedCommentTxt: Label '1 journal line not posted. ';
     begin
         AANBSetup.Get();
         LRIStockMovement.SetRange("Processed", false);
@@ -157,8 +157,8 @@ codeunit 66002 "Cron Job Mgmt."
         IntegrationDataLog: Record "Integration Data Log";
         IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
         IntegrationDataType: Enum "Integration Data Type";
-        SuccessCommentTxt: Label '1 item posted';
-        FailedCommentTxt: Label '1 item not posted. ';
+        SuccessCommentTxt: Label '1 journal line posted';
+        FailedCommentTxt: Label '1 journal line not posted. ';
     begin
         AANBSetup.Get();
         LRIStockMovement.SetRange("Processed", false);
@@ -180,14 +180,14 @@ codeunit 66002 "Cron Job Mgmt."
             until LRIStockMovement.Next() = 0;
     end;
 
-    procedure ProcessSelectedOrdersJournal(var WooCommerceOrderDetail: Record "Woo Commerce Order Detail")
+    procedure ProcessSelectedSalesJournal(var WooCommerceOrderDetail: Record "Woo Commerce Order Detail")
     var
         AANBSetup: Record "AANB Setup";
         IntegrationDataLog: Record "Integration Data Log";
         IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
         IntegrationDataType: Enum "Integration Data Type";
-        SuccessCommentTxt: Label '1 Order posted';
-        FailedCommentTxt: Label '1 Order not posted. ';
+        SuccessCommentTxt: Label '1 journal line posted';
+        FailedCommentTxt: Label '1 journal line not posted. ';
     begin
         AANBSetup.Get();
         WooCommerceOrderDetail.SetRange("Processed", false);
@@ -195,15 +195,15 @@ codeunit 66002 "Cron Job Mgmt."
             repeat
                 ClearLastError();
                 Clear(IntegrationDataMgmt);
-                IntegrationDataMgmt.SetJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Process Order"), AANBSetup);
+                IntegrationDataMgmt.SetSalesJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Post Sales"), AANBSetup);
                 if not IntegrationDataMgmt.Run() then begin
-                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Process Order"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Process Order");
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Sales");
                     if GuiAllowed then
                         Message(GetLastErrorText());
                 end else begin
                     WooCommerceOrderDetail.Validate(Processed, true);
                     WooCommerceOrderDetail.Modify();
-                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Process Order"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
                 end;
                 Commit();
             until WooCommerceOrderDetail.Next() = 0;

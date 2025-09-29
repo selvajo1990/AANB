@@ -1,6 +1,6 @@
 codeunit 66005 "Fetch Woo Commerce Orders"
 {
-    procedure OrderFetchFromWoocommerce()
+    procedure FetchOrderFromWoocommerce()
     var
         APITransactionLog: Record "API Transaction Log";
         APITemplateSetup: Record "API Template Setup";
@@ -72,8 +72,6 @@ codeunit 66005 "Fetch Woo Commerce Orders"
             end;
     end;
 
-
-
     procedure GetLastRunTimeStamp(): Text
     var
         WooCommerceOrderDetailL: Record "Woo Commerce Order Detail";
@@ -114,8 +112,6 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         Clear(this.HttpResponse);
         Clear(this.HttpRequest);
     end;
-
-
 
     procedure FetchApiTemplateSetup(TemplateCode: Code[20]; var APITemplateSetupP: Record "API Template Setup")
     var
@@ -246,5 +242,4 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         Header: HttpHeaders;
         HttpResponse: HttpResponseMessage;
         HttpRequest: HttpRequestMessage;
-        JobType: Code[20];
 }
