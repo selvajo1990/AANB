@@ -14,6 +14,7 @@ codeunit 66002 "Cron Job Mgmt."
                 this.FetchAllProductFromLRI();
             'ProcessAllMovmentJournal':
                 this.ProcessAllMovmentJournal();
+
         end;
     end;
 
@@ -177,5 +178,34 @@ codeunit 66002 "Cron Job Mgmt."
                 end;
                 Commit();
             until LRIStockMovement.Next() = 0;
+    end;
+
+    procedure ProcessSelectedOrdersJournal(var WooCommerceOrderDetail: Record "Woo Commerce Order Detail")
+    var
+        AANBSetup: Record "AANB Setup";
+        IntegrationDataLog: Record "Integration Data Log";
+        IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+        IntegrationDataType: Enum "Integration Data Type";
+        SuccessCommentTxt: Label '1 Order posted';
+        FailedCommentTxt: Label '1 Order not posted. ';
+    begin
+        AANBSetup.Get();
+        WooCommerceOrderDetail.SetRange("Processed", false);
+        if WooCommerceOrderDetail.FindSet() then
+            repeat
+                ClearLastError();
+                Clear(IntegrationDataMgmt);
+                IntegrationDataMgmt.SetJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Process Order"), AANBSetup);
+                if not IntegrationDataMgmt.Run() then begin
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Process Order"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Process Order");
+                    if GuiAllowed then
+                        Message(GetLastErrorText());
+                end else begin
+                    WooCommerceOrderDetail.Validate(Processed, true);
+                    WooCommerceOrderDetail.Modify();
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Process Order"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
+                end;
+                Commit();
+            until WooCommerceOrderDetail.Next() = 0;
     end;
 }

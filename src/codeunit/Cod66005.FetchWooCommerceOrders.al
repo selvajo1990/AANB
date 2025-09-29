@@ -4,7 +4,6 @@ codeunit 66005 "Fetch Woo Commerce Orders"
     var
         APITransactionLog: Record "API Transaction Log";
         APITemplateSetup: Record "API Template Setup";
-        WooCommerceOrderDetail: Record "Woo Commerce Order Detail";
         OrderArray, ItemLineArray, TaxArray : JsonArray;
         ResultToken, OrderToken, TaxToken, ItemLineToken : JsonToken;
         Amount: Decimal;
@@ -42,36 +41,38 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         OrderArray := ResultToken.AsArray();
 
         foreach OrderToken in OrderArray do
-            if not WooCommerceOrderDetail.Get(WooCommerceOrderDetail."Order Type"::Order, this.TextValue('order_key', OrderToken)) then begin
-                WooCommerceOrderDetail.Init();
-                WooCommerceOrderDetail."Order Type" := WooCommerceOrderDetail."Order Type"::Order;
-                WooCommerceOrderDetail."Order No." := this.TextValue('order_key', OrderToken);
-                WooCommerceOrderDetail."Order Date Time" := this.DateTimeValue('date_created', OrderToken);
-                WooCommerceOrderDetail."Order Date" := DT2Date(WooCommerceOrderDetail."Order Date Time");
-                WooCommerceOrderDetail."Order Time" := DT2Time(WooCommerceOrderDetail."Order Date Time");
-                WooCommerceOrderDetail."Amount Incl VAT" := this.DecimalValue('total', OrderToken);
-                WooCommerceOrderDetail."VAT Amount" := this.DecimalValue('total_tax', OrderToken);
-                WooCommerceOrderDetail."Discount Amount" := this.DecimalValue('discount_total', OrderToken);
-                WooCommerceOrderDetail."Discount Amount Tax" := this.DecimalValue('discount_tax', OrderToken);
-                WooCommerceOrderDetail."Delivery Fee" := this.DecimalValue('shipping_total', OrderToken);
-                WooCommerceOrderDetail."Delivery Fee Tax" := this.DecimalValue('shipping_tax', OrderToken);
-                WooCommerceOrderDetail.Currency := this.TextValue('currency', OrderToken);
-                WooCommerceOrderDetail.Status := this.TextValue('status', OrderToken);
+            if not this.WooCommerceOrderDetail.Get(this.WooCommerceOrderDetail."Order Type"::Order, this.TextValue('order_key', OrderToken)) then begin
+                this.WooCommerceOrderDetail.Init();
+                this.WooCommerceOrderDetail."Order Type" := this.WooCommerceOrderDetail."Order Type"::Invoice;
+                this.WooCommerceOrderDetail."Order No." := this.TextValue('order_key', OrderToken);
+                this.WooCommerceOrderDetail."Order Date Time" := this.DateTimeValue('date_created', OrderToken);
+                this.WooCommerceOrderDetail."Order Date" := DT2Date(this.WooCommerceOrderDetail."Order Date Time");
+                this.WooCommerceOrderDetail."Order Time" := DT2Time(this.WooCommerceOrderDetail."Order Date Time");
+                this.WooCommerceOrderDetail."Amount Incl VAT" := this.DecimalValue('total', OrderToken);
+                this.WooCommerceOrderDetail."VAT Amount" := this.DecimalValue('total_tax', OrderToken);
+                this.WooCommerceOrderDetail."Discount Amount" := this.DecimalValue('discount_total', OrderToken);
+                this.WooCommerceOrderDetail."Discount Amount Tax" := this.DecimalValue('discount_tax', OrderToken);
+                this.WooCommerceOrderDetail."Delivery Fee" := this.DecimalValue('shipping_total', OrderToken);
+                this.WooCommerceOrderDetail."Delivery Fee Tax" := this.DecimalValue('shipping_tax', OrderToken);
+                this.WooCommerceOrderDetail.Currency := this.TextValue('currency', OrderToken);
+                this.WooCommerceOrderDetail.Status := this.TextValue('status', OrderToken);
                 Amount := this.DecimalValue('total', OrderToken) - this.DecimalValue('total_tax', OrderToken);
-                WooCommerceOrderDetail.Amount := Amount;
+                this.WooCommerceOrderDetail.Amount := Amount;
 
                 OrderToken.SelectToken('line_items', ItemLineToken);
                 ItemLineArray := ItemLineToken.AsArray();
-                WooCommerceOrderDetail."No. Of Items" := ItemLineArray.Count;
+                this.WooCommerceOrderDetail."No. Of Items" := ItemLineArray.Count;
 
                 OrderToken.SelectToken('tax_lines', TaxToken);
                 TaxArray := TaxToken.AsArray();
                 foreach TaxToken in TaxArray do
-                    WooCommerceOrderDetail."VAT %" := this.DecimalValue('rate_percent', TaxToken);
+                    this.WooCommerceOrderDetail."VAT %" := this.DecimalValue('rate_percent', TaxToken);
 
-                WooCommerceOrderDetail.Insert();
+                this.WooCommerceOrderDetail.Insert();
             end;
     end;
+
+
 
     procedure GetLastRunTimeStamp(): Text
     var
@@ -113,6 +114,8 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         Clear(this.HttpResponse);
         Clear(this.HttpRequest);
     end;
+
+
 
     procedure FetchApiTemplateSetup(TemplateCode: Code[20]; var APITemplateSetupP: Record "API Template Setup")
     var
@@ -170,23 +173,6 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         exit(CopyStr(JTokenOut.AsValue().AsCode(), 1, 100));
     end;
 
-    procedure EntryTypeEnum(Path: Text[100]; JTokenIn: JsonToken) LRIStockMovementType: Enum "LRI Stock Movement Type"
-    var
-        JTokenOut: JsonToken;
-    begin
-        JTokenIn.SelectToken(Path, JTokenOut);
-        case JTokenOut.AsValue().AsText().ToUpper() of
-            'Purchase':
-                exit(LRIStockMovementType::Purchase);
-            'Purchase Return':
-                exit(LRIStockMovementType::"Purchase Return");
-            'Sales':
-                exit(LRIStockMovementType::Sales);
-            'Sales Return':
-                exit(LRIStockMovementType::"Sales Return");
-
-        end
-    end;
 
     procedure DecimalValue(Path: Text[100]; JTokenIn: JsonToken): Decimal
     var
@@ -250,6 +236,7 @@ codeunit 66005 "Fetch Woo Commerce Orders"
 
 
     var
+        WooCommerceOrderDetail: Record "Woo Commerce Order Detail";
         AANBSetup: Record "AANB Setup";
         EntryNo: BigInteger;
         Request: Text;
@@ -259,4 +246,5 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         Header: HttpHeaders;
         HttpResponse: HttpResponseMessage;
         HttpRequest: HttpRequestMessage;
+        JobType: Code[20];
 }

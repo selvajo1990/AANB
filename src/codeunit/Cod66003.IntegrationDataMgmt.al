@@ -13,6 +13,9 @@ codeunit 66003 "Integration Data Mgmt."
                 this.ProductFetchFromLRI();
             Format(IntegrationDataTypeL::"Post Movement"):
                 this.PostMovementJournal();
+            Format(IntegrationDataTypeL::"Process Order"):
+                this.PostOrderstoSalesJournal();
+
         end;
     end;
 
@@ -279,6 +282,65 @@ codeunit 66003 "Integration Data Mgmt."
             Error(GetLastErrorText());
     end;
 
+    procedure PostOrderstoSalesJournal()
+    var
+        LastGenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
+        TemplateName: Code[10];
+        BatchName: Code[10];
+    begin
+        case this.WooCommerceOrderDetail."Order Type" of
+            this.WooCommerceOrderDetail."Order Type"::Invoice:
+                begin
+                    this.AANBSetup.TestField("Woo-Sales Template Name");
+                    this.AANBSetup.TestField("Woo-Sales Batch Name");
+                    TemplateName := this.AANBSetup."Woo-Sales Template Name";
+                    BatchName := this.AANBSetup."Woo-Sales Batch Name";
+                end;
+        end;
+
+        GenJournalLine.SetRange("Journal Template Name", TemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", BatchName);
+        GenJournalLine.DeleteAll();
+
+        LastGenJournalLine."Journal Template Name" := TemplateName;
+        LastGenJournalLine."Journal Batch Name" := BatchName;
+        LastGenJournalLine."Document Type" := this.WooCommerceOrderDetail."Order Type"::Invoice;
+
+        GenJournalLine.Init();
+        GenJournalLine.Validate("Journal Template Name", TemplateName);
+        GenJournalLine.Validate("Journal Batch Name", BatchName);
+        GenJournalLine.SetUpNewLine(LastGenJournalLine, 0, true);
+        GenJournalLine."Posting Date" := this.WooCommerceOrderDetail."Order Date";
+        GenJournalLine."VAT Reporting Date" := this.WooCommerceOrderDetail."Order Date";
+        GenJournalLine."Document No." := CopyStr(this.WooCommerceOrderDetail."Order No.", 1, 20);
+        GenJournalLine."External Document No." := CopyStr(this.WooCommerceOrderDetail."Order No.", 1, 35);
+        GenJournalLine."Account Type" := "Gen. Journal Account Type"::Customer;
+        GenJournalLine."Account No." := this.AANBSetup."Default B2C Customer";
+        Customer.Get(this.AANBSetup."Default B2C Customer");
+        GenJournalLine.Description := Customer.Name;
+        GenJournalLine.Amount := this.WooCommerceOrderDetail."Amount Incl VAT";
+        GenJournalLine."Bal. Account Type" := "Gen. Journal Account Type"::"G/L Account";
+        GenJournalLine."Bal. Account No." := '212131010';
+        GenJournalLine."Posting Group" := 'B2C';
+        GenJournalLine.Insert();
+
+        GenJnlPostBatch.SetSuppressCommit(true);
+        GenJnlPostBatch.Run(GenJournalLine);
+
+        if GetLastErrorText() > '' then
+            Error(GetLastErrorText());
+    end;
+
+    procedure SetJournalData(WooCommerceOrderDetailp: Record "Woo Commerce Order Detail"; JobTypeP: Code[20]; AANBSetupP: Record "AANB Setup")
+    begin
+        this.JobType := JobTypeP;
+        this.WooCommerceOrderDetail := WooCommerceOrderDetailp;
+        this.AANBSetup := AANBSetupP;
+    end;
+
     procedure InitPostRequest()
     begin
         Clear(this.Request);
@@ -334,6 +396,7 @@ codeunit 66003 "Integration Data Mgmt."
         SalesHeader: Record "Sales Header";
         LRIStockMovement: Record "LRI Stock Movement";
         TransactionLog: Record "API Transaction Log";
+        WooCommerceOrderDetail: Record "Woo Commerce Order Detail";
         ConfigTemplateManagement: Codeunit "Config. Template Management";
         AANBIntegationMgmt: Codeunit "AANB Integation Mgmt.";
         EntryNo: BigInteger;

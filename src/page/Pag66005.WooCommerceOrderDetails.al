@@ -131,6 +131,24 @@ page 66005 "Woo Commerce Order Details"
                     FetchWoocommerceOrders.OrderFetchFromWoocommerce();
                 end;
             }
+            action("Post Orders")
+            {
+                ApplicationArea = All;
+                Image = GetEntries;
+                ToolTip = 'Executes the post orders action.';
+                Visible = true;
+                trigger OnAction()
+                var
+                    WooCommerceOrderDetail: Record "Woo Commerce Order Detail";
+                    CronJobMgmt: Codeunit "Cron Job Mgmt.";
+                    ConfirmationQst: Label 'Do you want to Post the selected Orders into Sales journal?';
+                begin
+                    if not Confirm(ConfirmationQst) then
+                        exit;
+                    CurrPage.SetSelectionFilter(WooCommerceOrderDetail);
+                    CronJobMgmt.ProcessSelectedOrdersJournal(WooCommerceOrderDetail);
+                end;
+            }
             action("Integration Data Log")
             {
                 ApplicationArea = All;
