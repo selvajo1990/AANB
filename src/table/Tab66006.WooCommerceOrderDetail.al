@@ -72,6 +72,16 @@ table 66006 "Woo Commerce Order Detail"
         field(1400; Processed; Boolean)
         {
             Caption = 'Processed';
+            trigger OnValidate()
+            begin
+                if Rec.Processed then begin
+                    "Processed Date" := Today;
+                    "Processed Time" := Time;
+                end else begin
+                    "Processed Date" := 0D;
+                    "Processed Time" := 0T;
+                end;
+            end;
         }
         field(1500; "Processed Date"; Date)
         {

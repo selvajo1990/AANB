@@ -285,15 +285,13 @@ codeunit 66003 "Integration Data Mgmt."
     procedure PostSalesJournal()
     var
         LastGenJournalLine: Record "Gen. Journal Line";
+        LastGenJournalLinePayment: Record "Gen. Journal Line";
         GenJournalLine: Record "Gen. Journal Line";
-        Customer: Record Customer;
         GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
         TemplateName: Code[10];
         BatchName: Code[10];
         OrderTypeNotHandledErr: Label '%1: %2 is not handled', Comment = '%1,%2';
     begin
-        Customer.Get(this.AANBSetup."Default B2C Customer");
-
         case this.WooCommerceOrderDetail."Order Type" of
             this.WooCommerceOrderDetail."Order Type"::Invoice:
                 begin
@@ -312,22 +310,44 @@ codeunit 66003 "Integration Data Mgmt."
 
         LastGenJournalLine."Journal Template Name" := TemplateName;
         LastGenJournalLine."Journal Batch Name" := BatchName;
-        LastGenJournalLine."Document Type" := this.WooCommerceOrderDetail."Order Type"::Invoice;
+        LastGenJournalLine."Document Type" := "Gen. Journal Document Type"::Invoice;
 
         GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", TemplateName);
         GenJournalLine.Validate("Journal Batch Name", BatchName);
         GenJournalLine.SetUpNewLine(LastGenJournalLine, 0, true);
+        GenJournalLine."Line No." := 10000;
         GenJournalLine.Validate("Posting Date", this.WooCommerceOrderDetail."Order Date");
         GenJournalLine."Document No." := CopyStr(this.WooCommerceOrderDetail."Order No.", 1, 20);
         GenJournalLine."External Document No." := CopyStr(this.WooCommerceOrderDetail."Order No.", 1, 35);
         GenJournalLine.Validate("Account Type", "Gen. Journal Account Type"::Customer);
         GenJournalLine.Validate("Account No.", this.AANBSetup."Default B2C Customer");
-        GenJournalLine.Description := Customer.Name;
+        GenJournalLine.Description := this.Customer.Name;
         GenJournalLine.Amount := this.WooCommerceOrderDetail."Amount Incl VAT";
         GenJournalLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", '212131010'); // B2C Cust. Bal. Account No.
-        GenJournalLine.Validate("Posting Group", Customer."Customer Posting Group");
+        GenJournalLine.Validate("Bal. Account No.", this.AANBSetup."B2C Cust. Bal. Account No.");
+        GenJournalLine.Validate("Posting Group", this.Customer."Customer Posting Group");
+        GenJournalLine.Insert();
+
+        LastGenJournalLinePayment."Journal Template Name" := TemplateName;
+        LastGenJournalLinePayment."Journal Batch Name" := BatchName;
+        LastGenJournalLinePayment."Document Type" := "Gen. Journal Document Type"::Payment;
+
+        GenJournalLine.Init();
+        GenJournalLine.Validate("Journal Template Name", TemplateName);
+        GenJournalLine.Validate("Journal Batch Name", BatchName);
+        GenJournalLine.SetUpNewLine(LastGenJournalLinePayment, 0, true);
+        GenJournalLine."Line No." := 20000;
+        GenJournalLine.Validate("Posting Date", this.WooCommerceOrderDetail."Order Date");
+        GenJournalLine."Document No." := CopyStr(this.WooCommerceOrderDetail."Order No.", 1, 20);
+        GenJournalLine."External Document No." := CopyStr(this.WooCommerceOrderDetail."Order No.", 1, 35);
+        GenJournalLine.Validate("Account Type", "Gen. Journal Account Type"::Customer);
+        GenJournalLine.Validate("Account No.", this.AANBSetup."Default B2C Customer");
+        GenJournalLine.Description := this.Customer.Name;
+        GenJournalLine.Amount := -this.WooCommerceOrderDetail."Amount Incl VAT";
+        GenJournalLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", this.AANBSetup."B2C Cust. Pay Bal.Acct No.");
+        GenJournalLine.Validate("Posting Group", this.Customer."Customer Posting Group");
         GenJournalLine.Insert();
 
         GenJnlPostBatch.SetSuppressCommit(true);
@@ -385,17 +405,19 @@ codeunit 66003 "Integration Data Mgmt."
         this.AANBSetup := AANBSetupP;
     end;
 
-    procedure SetSalesJournalData(WooCommerceOrderDetailP: Record "Woo Commerce Order Detail"; JobTypeP: Code[20]; AANBSetupP: Record "AANB Setup")
+    procedure SetSalesJournalData(WooCommerceOrderDetailP: Record "Woo Commerce Order Detail"; JobTypeP: Code[20]; AANBSetupP: Record "AANB Setup"; CustomerP: Record Customer)
     begin
         this.JobType := JobTypeP;
         this.WooCommerceOrderDetail := WooCommerceOrderDetailP;
         this.AANBSetup := AANBSetupP;
+        this.Customer := CustomerP;
     end;
 
     var
         ConfigTemplateHeader: Record "Config. Template Header";
         AANBSetup: Record "AANB Setup";
         LRIItem: Record "LRI Item";
+        Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         LRIStockMovement: Record "LRI Stock Movement";
         TransactionLog: Record "API Transaction Log";

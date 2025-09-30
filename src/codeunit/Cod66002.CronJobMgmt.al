@@ -14,6 +14,8 @@ codeunit 66002 "Cron Job Mgmt."
                 this.FetchAllProductFromLRI();
             'ProcessAllMovmentJournal':
                 this.ProcessAllMovmentJournal();
+            'ProcessAllSalesJournal':
+                this.ProcessAllSalesJournal();
 
         end;
     end;
@@ -183,6 +185,7 @@ codeunit 66002 "Cron Job Mgmt."
     procedure ProcessSelectedSalesJournal(var WooCommerceOrderDetail: Record "Woo Commerce Order Detail")
     var
         AANBSetup: Record "AANB Setup";
+        Customer: Record Customer;
         IntegrationDataLog: Record "Integration Data Log";
         IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
         IntegrationDataType: Enum "Integration Data Type";
@@ -190,12 +193,13 @@ codeunit 66002 "Cron Job Mgmt."
         FailedCommentTxt: Label '1 journal line not posted. ';
     begin
         AANBSetup.Get();
+        Customer.Get(AANBSetup."Default B2C Customer");
         WooCommerceOrderDetail.SetRange("Processed", false);
         if WooCommerceOrderDetail.FindSet() then
             repeat
                 ClearLastError();
                 Clear(IntegrationDataMgmt);
-                IntegrationDataMgmt.SetSalesJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Post Sales"), AANBSetup);
+                IntegrationDataMgmt.SetSalesJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Post Sales"), AANBSetup, Customer);
                 if not IntegrationDataMgmt.Run() then begin
                     IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Sales");
                     if GuiAllowed then
@@ -208,4 +212,37 @@ codeunit 66002 "Cron Job Mgmt."
                 Commit();
             until WooCommerceOrderDetail.Next() = 0;
     end;
+
+    procedure ProcessAllSalesJournal()
+    var
+        AANBSetup: Record "AANB Setup";
+        WooCommerceOrderDetail: Record "Woo Commerce Order Detail";
+        Customer: Record Customer;
+        IntegrationDataLog: Record "Integration Data Log";
+        IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+        IntegrationDataType: Enum "Integration Data Type";
+        SuccessCommentTxt: Label '1 journal line posted';
+        FailedCommentTxt: Label '1 journal line not posted. ';
+    begin
+        AANBSetup.Get();
+        Customer.Get(AANBSetup."Default B2C Customer");
+        WooCommerceOrderDetail.SetRange("Processed", false);
+        if WooCommerceOrderDetail.FindSet() then
+            repeat
+                ClearLastError();
+                Clear(IntegrationDataMgmt);
+                IntegrationDataMgmt.SetSalesJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Post Sales"), AANBSetup, Customer);
+                if not IntegrationDataMgmt.Run() then begin
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Sales");
+                    if GuiAllowed then
+                        Message(GetLastErrorText());
+                end else begin
+                    WooCommerceOrderDetail.Validate(Processed, true);
+                    WooCommerceOrderDetail.Modify();
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
+                end;
+                Commit();
+            until WooCommerceOrderDetail.Next() = 0;
+    end;
+
 }

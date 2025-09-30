@@ -19,6 +19,14 @@ page 66002 "AANB Setup"
                 {
                     ToolTip = 'Specifies the value of the Default B2C Customer field.', Comment = '%';
                 }
+                field("B2C Cust. Bal. Account No."; Rec."B2C Cust. Bal. Account No.")
+                {
+                    ToolTip = 'Specifies the value of the B2C Customer Bal. Account No. field.';
+                }
+                field("B2C Cust. Pay Bal.Acct.No."; Rec."B2C Cust. Pay Bal.Acct No.")
+                {
+                    ToolTip = 'Specifies the value of the B2C Customer Payment Bal. Account No. field.';
+                }
                 field("Default Item Template"; Rec."Default Item Template")
                 {
                     ToolTip = 'Specifies the value of the Default Item Template field.', Comment = '%';

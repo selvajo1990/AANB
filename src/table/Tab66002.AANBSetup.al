@@ -13,6 +13,16 @@ table 66002 "AANB Setup"
         {
             TableRelation = "Customer";
         }
+        field(520; "B2C Cust. Bal. Account No."; Code[20])
+        {
+            Caption = 'B2C Customer Bal. Account No.';
+            TableRelation = "G/L Account";
+        }
+        field(540; "B2C Cust. Pay Bal.Acct No."; Code[20])
+        {
+            Caption = 'B2C Customer Payment Bal. Account No.';
+            TableRelation = "G/L Account";
+        }
         field(1000; "Default Item Template"; Code[20])
         {
             TableRelation = "Config. Template Header";
