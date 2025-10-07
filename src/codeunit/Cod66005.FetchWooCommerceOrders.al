@@ -41,7 +41,7 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         OrderArray := ResultToken.AsArray();
 
         foreach OrderToken in OrderArray do
-            if not this.WooCommerceOrderDetail.Get(this.WooCommerceOrderDetail."Order Type"::Order, this.TextValue('order_key', OrderToken)) then begin
+            if not this.WooCommerceOrderDetail.Get(this.WooCommerceOrderDetail."Order Type"::Invoice, this.TextValue('order_key', OrderToken)) then begin
                 this.WooCommerceOrderDetail.Init();
                 this.WooCommerceOrderDetail."Order Type" := this.WooCommerceOrderDetail."Order Type"::Invoice;
                 this.WooCommerceOrderDetail."Order No." := this.TextValue('order_key', OrderToken);
