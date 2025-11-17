@@ -17,14 +17,14 @@ pageextension 66000 "Sales Order" extends "Sales Order"
                 ToolTip = 'Specifies the value of the Sent To LRI field.';
             }
         }
-        addafter("Sell-to Customer Name")
-        {
-            field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
-            {
-                ApplicationArea = All;
-                ToolTip = 'Specifies the value of the Sell-to Customer Name 2', Comment = '%';
-            }
-        }
+        // addafter("Sell-to Customer Name")
+        // {
+        //     field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
+        //     {
+        //         ApplicationArea = All;
+        //         ToolTip = 'Specifies the value of the Sell-to Customer Name 2', Comment = '%';
+        //     }
+        // }
     }
     actions
     {
