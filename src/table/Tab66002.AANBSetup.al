@@ -102,6 +102,10 @@ table 66002 "AANB Setup"
                     this.TestField("Recurring Order Fetch Interval");
             end;
         }
+        field(5542; "Return Fetch"; code[20])
+        {
+            TableRelation = "API Template Setup";
+        }
         field(5545; "Fetch All Order Interval"; Duration)
         {
         }

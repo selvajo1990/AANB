@@ -65,6 +65,10 @@ page 66005 "Woo Commerce Order Details"
                 {
                     ToolTip = 'Specifies the value of the Delivery Fee Tax field.', Comment = '%';
                 }
+                field("Country Code"; Rec."Country Code")
+                {
+                    ToolTip = 'Specifies the value of the Country Code', Comment = '%';
+                }
                 field(Currency; Rec.Currency)
                 {
                     ToolTip = 'Specifies the value of the Currency field.', Comment = '%';
@@ -73,34 +77,56 @@ page 66005 "Woo Commerce Order Details"
                 {
                     ToolTip = 'Specifies the value of the No. Of Items field.', Comment = '%';
                 }
+                field("Invoice No."; Rec."Invoice No.")
+                {
+                    ToolTip = 'Specifies the value of the Invoice No. field.';
+                }
                 field("Invoice Date"; Rec."Invoice Date")
                 {
                     ToolTip = 'Specifies the value of the Invoice Date field.';
+                }
+                field("Refund No."; Rec."Refund No.")
+                {
+                    ToolTip = 'Specifies the value of the Credit Note No. field.';
+                }
+                field("Credit Note No."; Rec."Credit Note No.")
+                {
+                    ToolTip = 'Specifies the value of the Credit Note No.', Comment = '%';
                 }
                 field("Credit Note Date"; Rec."Credit Note Date")
                 {
                     ToolTip = 'Specifies the value of the Credit Note Date field.';
                 }
-                field("Invoice No."; Rec."Invoice No.")
+                field("Credit Note Amount"; Rec."Credit Note Amount")
                 {
-                    ToolTip = 'Specifies the value of the Invoice No. field.';
+                    Visible = false;
+                    ToolTip = 'Specifies the value of the Credit Note Amount', Comment = '%';
                 }
-                field("Credit Note No."; Rec."Credit Note No.")
+                field("Order Processed"; Rec."Order Processed")
                 {
-                    ToolTip = 'Specifies the value of the Credit Note No. field.';
+                    ToolTip = 'Specifies the value of the Order Processed', Comment = '%';
                 }
-
-                field(Processed; Rec.Processed)
+                field("Order Processed Date"; Rec."Order Processed Date")
                 {
-                    ToolTip = 'Specifies the value of the Processed field.', Comment = '%';
+                    ToolTip = 'Specifies the value of the Order Processed Date', Comment = '%';
                 }
-                field("Processed Date"; Rec."Processed Date")
+                field("Order Processed Time"; Rec."Order Processed Time")
                 {
-                    ToolTip = 'Specifies the value of the Processed Date field.', Comment = '%';
+                    Visible = false;
+                    ToolTip = 'Specifies the value of the Order Processed Time', Comment = '%';
                 }
-                field("Processed Time"; Rec."Processed Time")
+                field("Return Processed"; Rec."Return Processed")
                 {
-                    ToolTip = 'Specifies the value of the Processed Time field.', Comment = '%';
+                    ToolTip = 'Specifies the value of the Return Processed', Comment = '%';
+                }
+                field("Return Processed Date"; Rec."Return Processed Date")
+                {
+                    ToolTip = 'Specifies the value of the Return Processed Date', Comment = '%';
+                }
+                field("Return Processed Time"; Rec."Return Processed Time")
+                {
+                    Visible = false;
+                    ToolTip = 'Specifies the value of the Return Processed Time', Comment = '%';
                 }
             }
         }
@@ -119,6 +145,9 @@ page 66005 "Woo Commerce Order Details"
                 {
                 }
                 actionref(Delete; "Delete Order")
+                {
+                }
+                actionref(Test; "Reset Posting - Test")
                 {
                 }
             }
@@ -202,6 +231,36 @@ page 66005 "Woo Commerce Order Details"
                 Image = Log;
                 RunObject = page "API Transaction Log List";
                 ToolTip = 'Executes the API Transaction Log action.';
+            }
+            action("Reset Posting - Test")
+            {
+                ApplicationArea = All;
+                Image = TestFile;
+                ToolTip = 'Executes the Reset Posting - Test action.';
+                trigger OnAction()
+                var
+                    WooCommerceOrderDetail: Record "Woo Commerce Order Detail";
+                begin
+
+                    CurrPage.SetSelectionFilter(WooCommerceOrderDetail);
+                    WooCommerceOrderDetail.SetRange("Order Processed", true);
+                    if WooCommerceOrderDetail.FindSet() then
+                        repeat
+                            WooCommerceOrderDetail."Invoice No." := Format(Random(10000));
+                            WooCommerceOrderDetail.Validate("Order Processed", false);
+                            WooCommerceOrderDetail.Modify();
+                        until WooCommerceOrderDetail.Next() = 0;
+
+
+                    WooCommerceOrderDetail.SetRange("Order Processed", false);
+                    WooCommerceOrderDetail.SetRange("Return Processed", true);
+                    if WooCommerceOrderDetail.FindSet() then
+                        repeat
+                            WooCommerceOrderDetail."Credit Note No." := Format(Random(10000));
+                            WooCommerceOrderDetail.Validate("Return Processed", false);
+                            WooCommerceOrderDetail.Modify();
+                        until WooCommerceOrderDetail.Next() = 0
+                end;
             }
         }
     }

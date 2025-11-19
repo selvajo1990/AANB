@@ -132,6 +132,10 @@ page 66002 "AANB Setup"
                     {
                         ToolTip = 'Specifies the value of the Order Fetch field.';
                     }
+                    field("Return Fetch"; Rec."Return Fetch")
+                    {
+                        ToolTip = 'Specifies the value of the Return Fetch', Comment = '%';
+                    }
                     field("Last Modified Order TimeStamp"; Rec."Last Modified Order TimeStamp")
                     {
                         ToolTip = 'Specifies the value of the Last Modified Order TimeStamp', Comment = '%';

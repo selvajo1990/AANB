@@ -15,7 +15,6 @@ table 66006 "Woo Commerce Order Detail"
         }
         field(50; "Order Date Time"; DateTime)
         {
-
         }
         field(100; "Order Date"; Date)
         {
@@ -72,36 +71,61 @@ table 66006 "Woo Commerce Order Detail"
         field(1310; "Invoice Date"; Date)
         {
         }
-        field(1320; "Invoice No."; Integer)
+        field(1320; "Invoice No."; Code[20])
         {
         }
         field(1330; "Credit Note Date"; Date)
         {
         }
-        field(1340; "Credit Note No."; Integer)
+        field(1340; "Refund No."; Code[20])
         {
         }
-        field(1400; Processed; Boolean)
+        field(1345; "Credit Note No."; Code[20])
         {
-            Caption = 'Processed';
+        }
+        field(1350; "Credit Note Amount"; Decimal)
+        {
+        }
+        field(1360; "Country Code"; Code[10])
+        {
+        }
+        field(1400; "Order Processed"; Boolean)
+        {
             trigger OnValidate()
             begin
-                if Rec.Processed then begin
-                    "Processed Date" := Today;
-                    "Processed Time" := Time;
+                if Rec."Order Processed" then begin
+                    "Order Processed Date" := Today;
+                    "Order Processed Time" := Time;
                 end else begin
-                    "Processed Date" := 0D;
-                    "Processed Time" := 0T;
+                    "Order Processed Date" := 0D;
+                    "Order Processed Time" := 0T;
                 end;
             end;
         }
-        field(1500; "Processed Date"; Date)
+        field(1500; "Order Processed Date"; Date)
         {
-            Caption = 'Processed Date';
         }
-        field(1600; "Processed Time"; Time)
+        field(1600; "Order Processed Time"; Time)
         {
-            Caption = 'Processed Time';
+        }
+        field(1700; "Return Processed"; Boolean)
+        {
+            trigger OnValidate()
+            begin
+                if Rec."Return Processed" then begin
+                    "Return Processed Date" := Today;
+                    "Return Processed Time" := Time;
+                end else begin
+                    "Return Processed Date" := 0D;
+                    "Return Processed Time" := 0T;
+                end;
+            end;
+        }
+        field(1800; "Return Processed Date"; Date)
+        {
+        }
+        field(1900; "Return Processed Time"; Time)
+        {
         }
     }
     keys

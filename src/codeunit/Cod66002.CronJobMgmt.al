@@ -194,20 +194,40 @@ codeunit 66002 "Cron Job Mgmt."
     begin
         AANBSetup.Get();
         Customer.Get(AANBSetup."Default B2C Customer");
-        WooCommerceOrderDetail.SetRange("Processed", false);
+        WooCommerceOrderDetail.SetRange("Order Processed", false);
         if WooCommerceOrderDetail.FindSet() then
             repeat
                 ClearLastError();
                 Clear(IntegrationDataMgmt);
-                IntegrationDataMgmt.SetSalesJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Post Sales"), AANBSetup, Customer);
+                IntegrationDataMgmt.SetSalesJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Post Sales"), AANBSetup, Customer, false);
                 if not IntegrationDataMgmt.Run() then begin
                     IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Sales");
                     if GuiAllowed then
                         Message(GetLastErrorText());
                 end else begin
-                    WooCommerceOrderDetail.Validate(Processed, true);
+                    WooCommerceOrderDetail.Validate("Order Processed", true);
                     WooCommerceOrderDetail.Modify();
                     IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
+                end;
+                Commit();
+            until WooCommerceOrderDetail.Next() = 0;
+
+        WooCommerceOrderDetail.SetRange("Order Processed", true);
+        WooCommerceOrderDetail.SetFilter("Credit Note No.", '>%1', '');
+        WooCommerceOrderDetail.SetRange("Return Processed", false);
+        if WooCommerceOrderDetail.FindSet() then
+            repeat
+                ClearLastError();
+                Clear(IntegrationDataMgmt);
+                IntegrationDataMgmt.SetSalesJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Post Sales"), AANBSetup, Customer, true);
+                if not IntegrationDataMgmt.Run() then begin
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Refund No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Sales");
+                    if GuiAllowed then
+                        Message(GetLastErrorText());
+                end else begin
+                    WooCommerceOrderDetail.Validate("Return Processed", true);
+                    WooCommerceOrderDetail.Modify();
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Refund No.", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
                 end;
                 Commit();
             until WooCommerceOrderDetail.Next() = 0;
@@ -226,20 +246,41 @@ codeunit 66002 "Cron Job Mgmt."
     begin
         AANBSetup.Get();
         Customer.Get(AANBSetup."Default B2C Customer");
-        WooCommerceOrderDetail.SetRange("Processed", false);
+        WooCommerceOrderDetail.SetRange("Order Processed", false);
         if WooCommerceOrderDetail.FindSet() then
             repeat
                 ClearLastError();
                 Clear(IntegrationDataMgmt);
-                IntegrationDataMgmt.SetSalesJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Post Sales"), AANBSetup, Customer);
+                IntegrationDataMgmt.SetSalesJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Post Sales"), AANBSetup, Customer, false);
                 if not IntegrationDataMgmt.Run() then begin
                     IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Sales");
                     if GuiAllowed then
                         Message(GetLastErrorText());
                 end else begin
-                    WooCommerceOrderDetail.Validate(Processed, true);
+                    WooCommerceOrderDetail.Validate("Order Processed", true);
                     WooCommerceOrderDetail.Modify();
                     IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Order No.", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
+                end;
+                Commit();
+            until WooCommerceOrderDetail.Next() = 0;
+
+        Clear(WooCommerceOrderDetail);
+        WooCommerceOrderDetail.SetRange("Order Processed", true);
+        WooCommerceOrderDetail.SetFilter("Credit Note No.", '>%1', '');
+        WooCommerceOrderDetail.SetRange("Return Processed", false);
+        if WooCommerceOrderDetail.FindSet() then
+            repeat
+                ClearLastError();
+                Clear(IntegrationDataMgmt);
+                IntegrationDataMgmt.SetSalesJournalData(WooCommerceOrderDetail, Format(IntegrationDataType::"Post Sales"), AANBSetup, Customer, true);
+                if not IntegrationDataMgmt.Run() then begin
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Refund No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Sales");
+                    if GuiAllowed then
+                        Message(GetLastErrorText());
+                end else begin
+                    WooCommerceOrderDetail.Validate("Return Processed", true);
+                    WooCommerceOrderDetail.Modify();
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Sales"), WooCommerceOrderDetail."Refund No.", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
                 end;
                 Commit();
             until WooCommerceOrderDetail.Next() = 0;

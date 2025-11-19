@@ -290,18 +290,19 @@ codeunit 66003 "Integration Data Mgmt."
         GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
         TemplateName: Code[10];
         BatchName: Code[10];
-        OrderTypeNotHandledErr: Label '%1: %2 is not handled', Comment = '%1,%2';
+        OrderOrRefundNo: Code[20];
+        PostingDate: Date;
     begin
-        case this.WooCommerceOrderDetail."Order Type" of
-            this.WooCommerceOrderDetail."Order Type"::Invoice:
-                begin
-                    this.AANBSetup.TestField("Woo-Sales Template Name");
-                    this.AANBSetup.TestField("Woo-Sales Batch Name");
-                    TemplateName := this.AANBSetup."Woo-Sales Template Name";
-                    BatchName := this.AANBSetup."Woo-Sales Batch Name";
-                end;
-            else
-                Error(OrderTypeNotHandledErr, this.WooCommerceOrderDetail.FieldCaption("Order Type"), this.WooCommerceOrderDetail."Order Type");
+        if this.IsReturn then begin
+            this.AANBSetup.TestField("Woo-Sales Return Template Name");
+            this.AANBSetup.TestField("Woo-Sales Return Batch Name");
+            TemplateName := this.AANBSetup."Woo-Sales Return Template Name";
+            BatchName := this.AANBSetup."Woo-Sales Return Batch Name";
+        end else begin
+            this.AANBSetup.TestField("Woo-Sales Template Name");
+            this.AANBSetup.TestField("Woo-Sales Batch Name");
+            TemplateName := this.AANBSetup."Woo-Sales Template Name";
+            BatchName := this.AANBSetup."Woo-Sales Batch Name";
         end;
 
         GenJournalLine.SetRange("Journal Template Name", TemplateName);
@@ -310,20 +311,32 @@ codeunit 66003 "Integration Data Mgmt."
 
         LastGenJournalLine."Journal Template Name" := TemplateName;
         LastGenJournalLine."Journal Batch Name" := BatchName;
-        LastGenJournalLine."Document Type" := "Gen. Journal Document Type"::Invoice;
+        if this.IsReturn then begin
+            LastGenJournalLine."Document Type" := "Gen. Journal Document Type"::"Credit Memo";
+            PostingDate := this.WooCommerceOrderDetail."Credit Note Date";
+            OrderOrRefundNo := this.WooCommerceOrderDetail."Credit Note No.";
+        end else begin
+            LastGenJournalLine."Document Type" := "Gen. Journal Document Type"::Invoice;
+            PostingDate := this.WooCommerceOrderDetail."Invoice Date";
+            OrderOrRefundNo := this.WooCommerceOrderDetail."Invoice No.";
+        end;
 
         GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", TemplateName);
         GenJournalLine.Validate("Journal Batch Name", BatchName);
         GenJournalLine.SetUpNewLine(LastGenJournalLine, 0, true);
         GenJournalLine."Line No." := 10000;
-        GenJournalLine.Validate("Posting Date", this.WooCommerceOrderDetail."Order Date");
-        GenJournalLine."Document No." := CopyStr(this.WooCommerceOrderDetail."Order No.", 1, 20);
-        GenJournalLine."External Document No." := CopyStr(this.WooCommerceOrderDetail."Order No.", 1, 35);
+
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine."Document No." := OrderOrRefundNo;
+        GenJournalLine."External Document No." := OrderOrRefundNo;
         GenJournalLine.Validate("Account Type", "Gen. Journal Account Type"::Customer);
         GenJournalLine.Validate("Account No.", this.AANBSetup."Default B2C Customer");
         GenJournalLine.Description := this.Customer.Name;
-        GenJournalLine.Amount := this.WooCommerceOrderDetail."Amount Incl VAT";
+        if this.IsReturn then
+            GenJournalLine.Amount := -this.WooCommerceOrderDetail."Amount Incl VAT"
+        else
+            GenJournalLine.Amount := this.WooCommerceOrderDetail."Amount Incl VAT";
         GenJournalLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::"G/L Account");
         GenJournalLine.Validate("Bal. Account No.", this.AANBSetup."B2C Cust. Bal. Account No.");
         GenJournalLine.Validate("Posting Group", this.Customer."Customer Posting Group");
@@ -331,20 +344,26 @@ codeunit 66003 "Integration Data Mgmt."
 
         LastGenJournalLinePayment."Journal Template Name" := TemplateName;
         LastGenJournalLinePayment."Journal Batch Name" := BatchName;
-        LastGenJournalLinePayment."Document Type" := "Gen. Journal Document Type"::Payment;
+        if this.IsReturn then
+            LastGenJournalLinePayment."Document Type" := "Gen. Journal Document Type"::Refund
+        else
+            LastGenJournalLinePayment."Document Type" := "Gen. Journal Document Type"::Payment;
 
         GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", TemplateName);
         GenJournalLine.Validate("Journal Batch Name", BatchName);
         GenJournalLine.SetUpNewLine(LastGenJournalLinePayment, 0, true);
         GenJournalLine."Line No." := 20000;
-        GenJournalLine.Validate("Posting Date", this.WooCommerceOrderDetail."Order Date");
-        GenJournalLine."Document No." := CopyStr(this.WooCommerceOrderDetail."Order No.", 1, 20);
-        GenJournalLine."External Document No." := CopyStr(this.WooCommerceOrderDetail."Order No.", 1, 35);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine."Document No." := OrderOrRefundNo;
+        GenJournalLine."External Document No." := OrderOrRefundNo;
         GenJournalLine.Validate("Account Type", "Gen. Journal Account Type"::Customer);
         GenJournalLine.Validate("Account No.", this.AANBSetup."Default B2C Customer");
         GenJournalLine.Description := this.Customer.Name;
-        GenJournalLine.Amount := -this.WooCommerceOrderDetail."Amount Incl VAT";
+        if this.IsReturn then
+            GenJournalLine.Amount := this.WooCommerceOrderDetail."Amount Incl VAT"
+        else
+            GenJournalLine.Amount := -this.WooCommerceOrderDetail."Amount Incl VAT";
         GenJournalLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::"G/L Account");
         GenJournalLine.Validate("Bal. Account No.", this.AANBSetup."B2C Cust. Pay Bal.Acct No.");
         GenJournalLine.Validate("Posting Group", this.Customer."Customer Posting Group");
@@ -405,12 +424,13 @@ codeunit 66003 "Integration Data Mgmt."
         this.AANBSetup := AANBSetupP;
     end;
 
-    procedure SetSalesJournalData(WooCommerceOrderDetailP: Record "Woo Commerce Order Detail"; JobTypeP: Code[20]; AANBSetupP: Record "AANB Setup"; CustomerP: Record Customer)
+    procedure SetSalesJournalData(WooCommerceOrderDetailP: Record "Woo Commerce Order Detail"; JobTypeP: Code[20]; AANBSetupP: Record "AANB Setup"; CustomerP: Record Customer; IsReturnP: Boolean)
     begin
         this.JobType := JobTypeP;
         this.WooCommerceOrderDetail := WooCommerceOrderDetailP;
         this.AANBSetup := AANBSetupP;
         this.Customer := CustomerP;
+        this.IsReturn := IsReturnP;
     end;
 
     var
@@ -425,8 +445,8 @@ codeunit 66003 "Integration Data Mgmt."
         ConfigTemplateManagement: Codeunit "Config. Template Management";
         AANBIntegationMgmt: Codeunit "AANB Integation Mgmt.";
         EntryNo: BigInteger;
-        Request: Text;
-        Response: Text;
+        Request, Response : Text;
+        IsReturn: Boolean;
         Content: HttpContent;
         Client: HttpClient;
         Header: HttpHeaders;

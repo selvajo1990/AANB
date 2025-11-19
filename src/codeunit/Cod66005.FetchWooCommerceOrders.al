@@ -4,9 +4,10 @@ codeunit 66005 "Fetch Woo Commerce Orders"
     var
         APITransactionLog: Record "API Transaction Log";
         APITemplateSetup: Record "API Template Setup";
-        OrderArray, ItemLineArray, TaxArray, MetadataArray : JsonArray;
-        ResultToken, OrderToken, TaxToken, ItemLineToken, MetaDataToken : JsonToken;
+        OrderArray, ItemLineArray, TaxArray, MetaDataArray, RefundArray : JsonArray;
+        ResultToken, OrderToken, TaxToken, ItemLineToken, MetaDataToken, RefundToken : JsonToken;
         Amount: Decimal;
+        InvoiceOrderDateTime: DateTime;
         LastRunTimeStamp, FetchUrl : Text;
     begin
         this.AANBSetup.Get();
@@ -41,11 +42,9 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         OrderArray := ResultToken.AsArray();
 
         foreach OrderToken in OrderArray do
-            // if not this.WooCommerceOrderDetail.Get(this.WooCommerceOrderDetail."Order Type"::Invoice, this.TextValue('order_key', OrderToken)) then begin
             if not this.WooCommerceOrderDetail.Get(this.WooCommerceOrderDetail."Order Type"::Invoice, this.TextValue('id', OrderToken)) then begin
                 this.WooCommerceOrderDetail.Init();
                 this.WooCommerceOrderDetail."Order Type" := this.WooCommerceOrderDetail."Order Type"::Invoice;
-                //this.WooCommerceOrderDetail."Order No." := this.TextValue('order_key', OrderToken);
                 this.WooCommerceOrderDetail."Order No." := this.TextValue('id', OrderToken);
                 this.WooCommerceOrderDetail."Order Date Time" := this.DateTimeValue('date_created', OrderToken);
                 this.WooCommerceOrderDetail."Order Date" := DT2Date(this.WooCommerceOrderDetail."Order Date Time");
@@ -58,6 +57,7 @@ codeunit 66005 "Fetch Woo Commerce Orders"
                 this.WooCommerceOrderDetail."Delivery Fee Tax" := this.DecimalValue('shipping_tax', OrderToken);
                 this.WooCommerceOrderDetail.Currency := this.TextValue('currency', OrderToken);
                 this.WooCommerceOrderDetail.Status := this.TextValue('status', OrderToken);
+                this.WooCommerceOrderDetail."Country Code" := CopyStr(this.CodeValue('billing.country', OrderToken), 1, MaxStrLen(this.WooCommerceOrderDetail."Country Code"));
                 Amount := this.DecimalValue('total', OrderToken) - this.DecimalValue('total_tax', OrderToken);
                 this.WooCommerceOrderDetail.Amount := Amount;
 
@@ -71,9 +71,92 @@ codeunit 66005 "Fetch Woo Commerce Orders"
                     this.WooCommerceOrderDetail."VAT %" := this.DecimalValue('rate_percent', TaxToken);
 
                 OrderToken.SelectToken('meta_data', MetaDataToken);
+                MetaDataArray := MetaDataToken.AsArray();
+                foreach MetaDataToken in MetaDataArray do
+                    case true of
+                        '_wcpdf_invoice_number' = this.TextValue('key', MetaDataToken):
+                            this.WooCommerceOrderDetail."Invoice No." := CopyStr(this.CodeValue('value', MetaDataToken), 1, MaxStrLen(this.WooCommerceOrderDetail."Invoice No."));
+                        '_wcpdf_invoice_date_formatted' = this.TextValue('key', MetaDataToken):
+                            begin
+                                Evaluate(InvoiceOrderDateTime, this.TextValue('value', MetaDataToken));
+                                this.WooCommerceOrderDetail."Invoice Date" := DT2Date(InvoiceOrderDateTime);
+                            end;
+                    end;
+
+                OrderToken.SelectToken('refunds', RefundToken);
+                RefundArray := RefundToken.AsArray();
+                foreach RefundToken in RefundArray do begin
+                    this.WooCommerceOrderDetail."Refund No." := CopyStr(this.CodeValue('id', RefundToken), 1, MaxStrLen(this.WooCommerceOrderDetail."Refund No."));
+                    this.WooCommerceOrderDetail."Credit Note Amount" := this.DecimalValue('total', RefundToken);
+                end;
 
                 this.WooCommerceOrderDetail.Insert();
-            end;
+            end else
+                if this.WooCommerceOrderDetail."Refund No." = '' then begin
+                    OrderToken.SelectToken('refunds', RefundToken);
+                    RefundArray := RefundToken.AsArray();
+                    foreach RefundToken in RefundArray do begin
+                        this.WooCommerceOrderDetail."Refund No." := CopyStr(this.CodeValue('id', RefundToken), 1, MaxStrLen(this.WooCommerceOrderDetail."Refund No."));
+                        this.WooCommerceOrderDetail."Credit Note Amount" := this.DecimalValue('total', RefundToken);
+                    end;
+                    this.WooCommerceOrderDetail.Modify();
+                end;
+
+        Commit();
+        this.FetchRefundInformation();
+    end;
+
+    procedure FetchRefundInformation()
+    var
+        WooCommerceOrderDetailL: Record "Woo Commerce Order Detail";
+        ApiTemplateSetup: Record "API Template Setup";
+        APITransactionLog: Record "API Transaction Log";
+        FetchUrl: Text;
+        MetaDataArray: JsonArray;
+        ResultToken, MetaDataToken : JsonToken;
+    begin
+        this.AANBSetup.Get();
+        this.AANBSetup.TestField("Return Fetch");
+
+        this.FetchApiTemplateSetup(this.AANBSetup."Return Fetch", ApiTemplateSetup);
+        ApiTemplateSetup.TestField(EndPoint);
+        ApiTemplateSetup.TestField(Password);
+
+        WooCommerceOrderDetailL.SetFilter("Refund No.", '>%1', '');
+        WooCommerceOrderDetailL.SetRange("Credit Note Date", 0D);
+        if WooCommerceOrderDetailL.FindSet() then
+            repeat
+                FetchUrl := StrSubstNo(APITemplateSetup.EndPoint, WooCommerceOrderDetailL."Order No.", WooCommerceOrderDetailL."Refund No.");
+                this.InitPostRequest();
+                this.Content.GetHeaders(this.Header);
+                this.Header.Clear();
+                this.Client.DefaultRequestHeaders().Add('Authorization', this.BasicAuthorization(APITemplateSetup."User ID", APITemplateSetup.Password));
+                this.Client.Get(FetchUrl, this.HttpResponse);
+                this.EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Request", 0, APITransactionLog.Status::Processed, '', APITemplateSetup, '', APITemplateSetup.EndPoint);
+                if this.HttpResponse.HttpStatusCode <> 200 then begin
+                    if this.HttpResponse.IsSuccessStatusCode then
+                        this.HttpResponse.Content.ReadAs(this.Response);
+                    APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Response", this.EntryNo, APITransactionLog.Status::Failed, WooCommerceOrderDetailL."Refund No.", APITemplateSetup, CopyStr(this.HttpResponse.ReasonPhrase(), 1, 2048), this.Response);
+                    Commit();
+                    Error(this.HttpResponse.ReasonPhrase());
+                end;
+                this.HttpResponse.Content.ReadAs(this.Response);
+                this.EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Response", this.EntryNo, APITransactionLog.Status::Processed, WooCommerceOrderDetailL."Refund No.", APITemplateSetup, CopyStr(this.HttpResponse.ReasonPhrase(), 1, 2048), this.Response);
+                Commit();
+
+                ResultToken.ReadFrom(this.Response);
+                if ResultToken.SelectToken('meta_data', MetaDataToken) then begin
+                    WooCommerceOrderDetailL."Credit Note Date" := DT2Date(this.DateTimeValue('date_created', ResultToken));
+                    MetaDataArray := MetaDataToken.AsArray();
+                    foreach MetaDataToken in MetaDataArray do
+                        case true of
+                            '_wcpdf_credit_note_number' = this.TextValue('key', MetaDataToken):
+                                WooCommerceOrderDetailL."Credit Note No." := CopyStr(this.CodeValue('value', MetaDataToken), 1, MaxStrLen(WooCommerceOrderDetail."Credit Note No."));
+                        end;
+                    WooCommerceOrderDetailL.Modify(true);
+                end;
+
+            until WooCommerceOrderDetailL.Next() = 0;
     end;
 
     procedure GetLastRunTimeStamp(): Text
