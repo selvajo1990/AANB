@@ -69,6 +69,18 @@ table 66006 "Woo Commerce Order Detail"
         {
             Caption = 'No. Of Items';
         }
+        field(1310; "Invoice Date"; Date)
+        {
+        }
+        field(1320; "Invoice No."; Integer)
+        {
+        }
+        field(1330; "Credit Note Date"; Date)
+        {
+        }
+        field(1340; "Credit Note No."; Integer)
+        {
+        }
         field(1400; Processed; Boolean)
         {
             Caption = 'Processed';

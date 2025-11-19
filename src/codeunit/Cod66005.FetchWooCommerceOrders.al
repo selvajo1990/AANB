@@ -4,8 +4,8 @@ codeunit 66005 "Fetch Woo Commerce Orders"
     var
         APITransactionLog: Record "API Transaction Log";
         APITemplateSetup: Record "API Template Setup";
-        OrderArray, ItemLineArray, TaxArray : JsonArray;
-        ResultToken, OrderToken, TaxToken, ItemLineToken : JsonToken;
+        OrderArray, ItemLineArray, TaxArray, MetadataArray : JsonArray;
+        ResultToken, OrderToken, TaxToken, ItemLineToken, MetaDataToken : JsonToken;
         Amount: Decimal;
         LastRunTimeStamp, FetchUrl : Text;
     begin
@@ -41,10 +41,12 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         OrderArray := ResultToken.AsArray();
 
         foreach OrderToken in OrderArray do
-            if not this.WooCommerceOrderDetail.Get(this.WooCommerceOrderDetail."Order Type"::Invoice, this.TextValue('order_key', OrderToken)) then begin
+            // if not this.WooCommerceOrderDetail.Get(this.WooCommerceOrderDetail."Order Type"::Invoice, this.TextValue('order_key', OrderToken)) then begin
+            if not this.WooCommerceOrderDetail.Get(this.WooCommerceOrderDetail."Order Type"::Invoice, this.TextValue('id', OrderToken)) then begin
                 this.WooCommerceOrderDetail.Init();
                 this.WooCommerceOrderDetail."Order Type" := this.WooCommerceOrderDetail."Order Type"::Invoice;
-                this.WooCommerceOrderDetail."Order No." := this.TextValue('order_key', OrderToken);
+                //this.WooCommerceOrderDetail."Order No." := this.TextValue('order_key', OrderToken);
+                this.WooCommerceOrderDetail."Order No." := this.TextValue('id', OrderToken);
                 this.WooCommerceOrderDetail."Order Date Time" := this.DateTimeValue('date_created', OrderToken);
                 this.WooCommerceOrderDetail."Order Date" := DT2Date(this.WooCommerceOrderDetail."Order Date Time");
                 this.WooCommerceOrderDetail."Order Time" := DT2Time(this.WooCommerceOrderDetail."Order Date Time");
@@ -67,6 +69,8 @@ codeunit 66005 "Fetch Woo Commerce Orders"
                 TaxArray := TaxToken.AsArray();
                 foreach TaxToken in TaxArray do
                     this.WooCommerceOrderDetail."VAT %" := this.DecimalValue('rate_percent', TaxToken);
+
+                OrderToken.SelectToken('meta_data', MetaDataToken);
 
                 this.WooCommerceOrderDetail.Insert();
             end;

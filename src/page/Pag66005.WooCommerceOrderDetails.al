@@ -73,6 +73,23 @@ page 66005 "Woo Commerce Order Details"
                 {
                     ToolTip = 'Specifies the value of the No. Of Items field.', Comment = '%';
                 }
+                field("Invoice Date"; Rec."Invoice Date")
+                {
+                    ToolTip = 'Specifies the value of the Invoice Date field.';
+                }
+                field("Credit Note Date"; Rec."Credit Note Date")
+                {
+                    ToolTip = 'Specifies the value of the Credit Note Date field.';
+                }
+                field("Invoice No."; Rec."Invoice No.")
+                {
+                    ToolTip = 'Specifies the value of the Invoice No. field.';
+                }
+                field("Credit Note No."; Rec."Credit Note No.")
+                {
+                    ToolTip = 'Specifies the value of the Credit Note No. field.';
+                }
+
                 field(Processed; Rec.Processed)
                 {
                     ToolTip = 'Specifies the value of the Processed field.', Comment = '%';
