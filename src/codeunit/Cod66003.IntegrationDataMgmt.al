@@ -287,12 +287,16 @@ codeunit 66003 "Integration Data Mgmt."
         LastGenJournalLine: Record "Gen. Journal Line";
         LastGenJournalLinePayment: Record "Gen. Journal Line";
         GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
         GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
         TemplateName: Code[10];
         BatchName: Code[10];
         OrderOrRefundNo: Code[20];
         PostingDate: Date;
     begin
+        this.AANBSetup.TestField("D Bal. VAT Prod. Posting Group");
+        VATPostingSetup.Get(this.WooCommerceOrderDetail."Country Code", this.AANBSetup."D Bal. VAT Prod. Posting Group");
+
         if this.IsReturn then begin
             this.AANBSetup.TestField("Woo-Sales Return Template Name");
             this.AANBSetup.TestField("Woo-Sales Return Batch Name");
@@ -340,6 +344,9 @@ codeunit 66003 "Integration Data Mgmt."
         GenJournalLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::"G/L Account");
         GenJournalLine.Validate("Bal. Account No.", this.AANBSetup."B2C Cust. Bal. Account No.");
         GenJournalLine.Validate("Posting Group", this.Customer."Customer Posting Group");
+        GenJournalLine.Validate("Bal. Gen. Posting Type", GenJournalLine."Bal. Gen. Posting Type"::Sale);
+        GenJournalLine.Validate("Bal. VAT Bus. Posting Group", this.WooCommerceOrderDetail."Country Code");
+        GenJournalLine.Validate("Bal. VAT Prod. Posting Group", this.AANBSetup."D Bal. VAT Prod. Posting Group");
         GenJournalLine.Insert();
 
         LastGenJournalLinePayment."Journal Template Name" := TemplateName;
@@ -369,8 +376,10 @@ codeunit 66003 "Integration Data Mgmt."
         GenJournalLine.Validate("Posting Group", this.Customer."Customer Posting Group");
         GenJournalLine.Insert();
 
-        GenJnlPostBatch.SetSuppressCommit(true);
-        GenJnlPostBatch.Run(GenJournalLine);
+        if not this.AANBSetup."Skip Sales Journal Posting" then begin
+            GenJnlPostBatch.SetSuppressCommit(true);
+            GenJnlPostBatch.Run(GenJournalLine);
+        end;
 
         if GetLastErrorText() > '' then
             Error(GetLastErrorText());
