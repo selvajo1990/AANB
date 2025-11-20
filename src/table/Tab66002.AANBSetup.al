@@ -23,6 +23,11 @@ table 66002 "AANB Setup"
             Caption = 'B2C Customer Payment Bal. Account No.';
             TableRelation = "G/L Account";
         }
+        field(560; "D Bal. VAT Prod. Posting Group"; Code[20])
+        {
+            Caption = 'Default B2C Bal. VAT Prod. Posting Group';
+            TableRelation = "VAT Product Posting Group";
+        }
         field(1000; "Default Item Template"; Code[20])
         {
             TableRelation = "Config. Template Header";
@@ -120,6 +125,9 @@ table 66002 "AANB Setup"
 
         }
         field(6500; "RCB No."; Text[100])
+        {
+        }
+        field(7000; "Skip Sales Journal Posting"; Boolean)
         {
         }
     }

@@ -31,6 +31,10 @@ page 66002 "AANB Setup"
                 {
                     ToolTip = 'Specifies the value of the Default Item Template field.', Comment = '%';
                 }
+                field("D Bal. VAT Prod. Posting Group"; Rec."D Bal. VAT Prod. Posting Group")
+                {
+                    ToolTip = 'Specifies the value of the Default B2C Bal. VAT Prod. Posting Group', Comment = '%';
+                }
             }
             group("Journal Templates")
             {
@@ -87,6 +91,10 @@ page 66002 "AANB Setup"
                     field("Woo-Sales Return Batch Name "; Rec."Woo-Sales Return Batch Name")
                     {
                         ToolTip = 'Specifies the value of the Woo-Sales Return Batch Name field.';
+                    }
+                    field("Skip Sales Journal Posting"; Rec."Skip Sales Journal Posting")
+                    {
+                        ToolTip = 'Specifies the value of the Skip Sales Journal Posting', Comment = '%';
                     }
                 }
 
