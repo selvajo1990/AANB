@@ -31,6 +31,10 @@ page 66004 "LRI Stock Movements"
                 {
                     ToolTip = 'Specifies the value of the Qty field.', Comment = '%';
                 }
+                field(Price; Rec.Price)
+                {
+                    ToolTip = 'Specifies the value of the Price', Comment = '%';
+                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ToolTip = 'Specifies the value of the Location Code field.', Comment = '%';

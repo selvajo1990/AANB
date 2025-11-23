@@ -3,6 +3,7 @@ codeunit 66001 "AANB Integation Mgmt."
     procedure stockMovementTransaction(request: Text) response: Text
     var
         LRIStockMovement: Record "LRI Stock Movement";
+        Item: Record Item;
         JObject: JsonObject;
         JToken: JsonToken;
         JArray: JsonArray;
@@ -27,6 +28,13 @@ codeunit 66001 "AANB Integation Mgmt."
             LRIStockMovement."Total Amount" := this.DecimalValue('totalAmount', JToken);
             LRIStockMovement."Total VAT Amount" := this.DecimalValue('totalVATAmount', JToken);
             LRIStockMovement."Entry Type" := this.EntryTypeEnum('entryType', JToken);
+            if Item.Get(LRIStockMovement."Product Id") then
+                case LRIStockMovement."Entry Type" of
+                    LRIStockMovement."Entry Type"::Purchase, LRIStockMovement."Entry Type"::"Purchase Return":
+                        LRIStockMovement.Price := Item."Unit Cost";
+                    LRIStockMovement."Entry Type"::Sales, LRIStockMovement."Entry Type"::"Sales Return":
+                        LRIStockMovement.Price := Item."Unit Price";
+                end;
             LRIStockMovement."Entry Date" := this.DateValue('entryDate', JToken);
             LRIStockMovement."Entry Time" := this.TimeValue('entryTime', JToken);
             LRIStockMovement."Location Code" := CopyStr(this.CodeValue('locationCode', JToken), 1, MaxStrLen(LRIStockMovement."Location Code"));
