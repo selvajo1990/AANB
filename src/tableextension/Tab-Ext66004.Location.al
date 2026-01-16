@@ -6,6 +6,7 @@ tableextension 66004 Location extends Location
         {
             Caption = ' Shipping Address';
         }
+
         field(66001; "Shipping Address 2"; Text[100])
         {
             Caption = 'Shipping Address 2';
@@ -56,6 +57,10 @@ tableextension 66004 Location extends Location
             begin
                 PostCode.CheckClearPostCodeCityCounty(City, "Post Code", County, "Country/Region Code", xRec."Country/Region Code");
             end;
+        }
+        field(66005; "VAT Registration Number"; Text[20])
+        {
+
         }
     }
     var

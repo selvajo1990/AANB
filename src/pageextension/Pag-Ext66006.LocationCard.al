@@ -38,6 +38,15 @@ pageextension 66006 "Location Card" extends "Location Card"
                 }
 
             }
+
+        }
+        addafter(City)
+        {
+            field("VAT Registration Number"; Rec."VAT Registration Number")
+            {
+                ApplicationArea = All;
+                ToolTip = 'Specifies the value of the VAT Registration Number field.';
+            }
         }
     }
 }

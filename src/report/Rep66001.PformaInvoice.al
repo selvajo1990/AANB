@@ -13,46 +13,22 @@ report 66001 "Pforma Invoice"
             column(No_; "No.")
             {
             }
-            column(Transfer_from_Code; "Transfer-from Code")
+            column(Name; this.CompanyInformation.Name)
             {
             }
-            column(Transfer_from_Name; "Transfer-from Name")
+            column(Address; this.CompanyInformation.Address)
             {
             }
-            column(Transfer_from_Address; "Transfer-from Address")
+            column(Address2; this.CompanyInformation."Address 2")
             {
             }
-            column(Transfer_from_Address_2; "Transfer-from Address 2")
+            column(city; this.CompanyInformation.City)
             {
             }
-            column(Transfer_from_City; "Transfer-from City")
+            column(FromVat; this.FromVat)
             {
             }
-            column(Transfer_from_Post_Code; "Transfer-from Post Code")
-            {
-            }
-            column(Transfer_to_Code; "Transfer-to Code")
-            {
-            }
-            column(Transfer_to_Name; "Transfer-to Name")
-            {
-            }
-            column(Transfer_to_Address; "Transfer-to Address")
-            {
-            }
-            column(Transfer_to_Address_2; "Transfer-to Address 2")
-            {
-            }
-            column(Transfer_to_City; "Transfer-to City")
-            {
-            }
-            column(From_country; "Trsf.-from Country/Region Code")
-            {
-            }
-            column(Transfer_to_Post_Code; "Transfer-to Post Code")
-            {
-            }
-            column(To_country; "Trsf.-to Country/Region Code")
+            column(ToVat; this.ToVat)
             {
             }
             column(Posting_Date; Format("Posting Date"))
@@ -107,7 +83,10 @@ report 66001 "Pforma Invoice"
             trigger OnAfterGetRecord()
             begin
                 this.Location.Get("Transfer-from Code");
-
+                this.FromVat := this.Location."VAT Registration Number";
+                clear(this.Location);
+                this.Location.Get("Transfer-To Code");
+                this.ToVat := this.Location."VAT Registration Number";
             end;
         }
     }
@@ -118,11 +97,14 @@ report 66001 "Pforma Invoice"
     trigger OnPreReport()
     begin
         this.GeneralLedgerSetup.Get();
+        this.CompanyInformation.Get();
     end;
 
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
+        CompanyInformation: Record "Company Information";
         Item: Record Item;
         Location: Record Location;
+        FromVat, ToVat : Text[20];
         Total: Decimal;
 }

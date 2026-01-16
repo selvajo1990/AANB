@@ -11,7 +11,7 @@
       <am:Name>PBIRB</am:Name>
       <am:Version>15.7.1813.16</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2026-01-15T15:35:40.2232621Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2026-01-16T13:58:41.6401067Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <AutoRefresh>0</AutoRefresh>
   <DataSources>
@@ -35,16 +35,16 @@
                   <Width>4.659cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>4.00284cm</Width>
+                  <Width>4.12984cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.8175cm</Width>
+                  <Width>3.17733cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>3.3255cm</Width>
+                  <Width>3.1985cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>3.9065cm</Width>
+                  <Width>4.75317cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -529,7 +529,16 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>From AANB Sarl</Value>
+                                  <Value>From </Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontWeight>Bold</FontWeight>
+                                    <TextDecoration>None</TextDecoration>
+                                    <Color>#000000</Color>
+                                  </Style>
+                                </TextRun>
+                                <TextRun>
+                                  <Value>=Fields!Name.Value</Value>
                                   <Style>
                                     <FontStyle>Normal</FontStyle>
                                     <FontWeight>Bold</FontWeight>
@@ -563,7 +572,16 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>To AANB Sarl</Value>
+                                  <Value>To </Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontWeight>Bold</FontWeight>
+                                    <TextDecoration>None</TextDecoration>
+                                    <Color>#000000</Color>
+                                  </Style>
+                                </TextRun>
+                                <TextRun>
+                                  <Value>=Fields!Name.Value</Value>
                                   <Style>
                                     <FontStyle>Normal</FontStyle>
                                     <FontWeight>Bold</FontWeight>
@@ -690,15 +708,15 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox43">
-                          <rd:DefaultName>Textbox43</rd:DefaultName>
+                        <Textbox Name="Textbox2">
+                          <rd:DefaultName>Textbox2</rd:DefaultName>
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Transfer_from_Name.Value</Value>
+                                  <Value>=Fields!Address.Value</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -721,15 +739,15 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox44">
-                          <rd:DefaultName>Textbox44</rd:DefaultName>
+                        <Textbox Name="Textbox105">
+                          <rd:DefaultName>Textbox2</rd:DefaultName>
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Transfer_to_Name.Value</Value>
+                                  <Value>=Fields!Address.Value</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -853,15 +871,15 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox48">
-                          <rd:DefaultName>Textbox48</rd:DefaultName>
+                        <Textbox Name="Textbox4">
+                          <rd:DefaultName>Textbox4</rd:DefaultName>
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Transfer_from_Address.Value</Value>
+                                  <Value>=Fields!Address2.Value</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -884,15 +902,15 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox49">
-                          <rd:DefaultName>Textbox49</rd:DefaultName>
+                        <Textbox Name="Textbox110">
+                          <rd:DefaultName>Textbox4</rd:DefaultName>
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Transfer_to_Address.Value</Value>
+                                  <Value>=Fields!Address2.Value</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -1013,15 +1031,15 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox28">
-                          <rd:DefaultName>Textbox28</rd:DefaultName>
+                        <Textbox Name="Textbox5">
+                          <rd:DefaultName>Textbox5</rd:DefaultName>
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Transfer_from_City.Value</Value>
+                                  <Value>=Fields!city.Value</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -1044,15 +1062,15 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox29">
-                          <rd:DefaultName>Textbox29</rd:DefaultName>
+                        <Textbox Name="Textbox115">
+                          <rd:DefaultName>Textbox5</rd:DefaultName>
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Transfer_to_City.Value</Value>
+                                  <Value>=Fields!city.Value</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -1173,21 +1191,21 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox53">
-                          <rd:DefaultName>Textbox53</rd:DefaultName>
+                        <Textbox Name="Textbox6">
+                          <rd:DefaultName>Textbox6</rd:DefaultName>
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Transfer_from_Post_Code.Value</Value>
+                                  <Value>VAT </Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                                 <TextRun>
-                                  <Value>=Fields!From_country.Value</Value>
+                                  <Value>=Fields!FromVat.Value</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -1210,21 +1228,21 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox54">
-                          <rd:DefaultName>Textbox54</rd:DefaultName>
+                        <Textbox Name="Textbox120">
+                          <rd:DefaultName>Textbox6</rd:DefaultName>
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Transfer_to_Post_Code.Value</Value>
+                                  <Value>VAT </Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
                                 </TextRun>
                                 <TextRun>
-                                  <Value>=Fields!To_country.Value</Value>
+                                  <Value>=Fields!ToVat.Value</Value>
                                   <Style>
                                     <FontWeight>Bold</FontWeight>
                                   </Style>
@@ -3325,7 +3343,7 @@
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
             <Height>14.13951cm</Height>
-            <Width>18.71134cm</Width>
+            <Width>19.91784cm</Width>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -3336,7 +3354,7 @@
         <Height>14.13951cm</Height>
         <Style />
       </Body>
-      <Width>18.71134cm</Width>
+      <Width>19.91784cm</Width>
       <Page>
         <PageHeight>29.7cm</PageHeight>
         <PageWidth>21cm</PageWidth>
@@ -3392,47 +3410,23 @@ End Function
         <Field Name="No_">
           <DataField>No_</DataField>
         </Field>
-        <Field Name="Transfer_from_Code">
-          <DataField>Transfer_from_Code</DataField>
+        <Field Name="Name">
+          <DataField>Name</DataField>
         </Field>
-        <Field Name="Transfer_from_Name">
-          <DataField>Transfer_from_Name</DataField>
+        <Field Name="Address">
+          <DataField>Address</DataField>
         </Field>
-        <Field Name="Transfer_from_Address">
-          <DataField>Transfer_from_Address</DataField>
+        <Field Name="Address2">
+          <DataField>Address2</DataField>
         </Field>
-        <Field Name="Transfer_from_Address_2">
-          <DataField>Transfer_from_Address_2</DataField>
+        <Field Name="city">
+          <DataField>city</DataField>
         </Field>
-        <Field Name="Transfer_from_City">
-          <DataField>Transfer_from_City</DataField>
+        <Field Name="FromVat">
+          <DataField>FromVat</DataField>
         </Field>
-        <Field Name="Transfer_from_Post_Code">
-          <DataField>Transfer_from_Post_Code</DataField>
-        </Field>
-        <Field Name="Transfer_to_Code">
-          <DataField>Transfer_to_Code</DataField>
-        </Field>
-        <Field Name="Transfer_to_Name">
-          <DataField>Transfer_to_Name</DataField>
-        </Field>
-        <Field Name="Transfer_to_Address">
-          <DataField>Transfer_to_Address</DataField>
-        </Field>
-        <Field Name="Transfer_to_Address_2">
-          <DataField>Transfer_to_Address_2</DataField>
-        </Field>
-        <Field Name="Transfer_to_City">
-          <DataField>Transfer_to_City</DataField>
-        </Field>
-        <Field Name="From_country">
-          <DataField>From_country</DataField>
-        </Field>
-        <Field Name="Transfer_to_Post_Code">
-          <DataField>Transfer_to_Post_Code</DataField>
-        </Field>
-        <Field Name="To_country">
-          <DataField>To_country</DataField>
+        <Field Name="ToVat">
+          <DataField>ToVat</DataField>
         </Field>
         <Field Name="Posting_Date">
           <DataField>Posting_Date</DataField>
