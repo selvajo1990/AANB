@@ -57,6 +57,7 @@ codeunit 66005 "Fetch Woo Commerce Orders"
                 this.WooCommerceOrderDetail."Delivery Fee Tax" := this.DecimalValue('shipping_tax', OrderToken);
                 this.WooCommerceOrderDetail.Currency := this.TextValue('currency', OrderToken);
                 this.WooCommerceOrderDetail.Status := this.TextValue('status', OrderToken);
+                this.WooCommerceOrderDetail."Invoice No." := CopyStr(this.CodeValue('wpo_wcpdf_invoice_number', OrderToken), 1, MaxStrLen(this.WooCommerceOrderDetail."Invoice No."));
                 this.WooCommerceOrderDetail."Country Code" := CopyStr(this.CodeValue('billing.country', OrderToken), 1, MaxStrLen(this.WooCommerceOrderDetail."Country Code"));
                 Amount := this.DecimalValue('total', OrderToken) - this.DecimalValue('total_tax', OrderToken);
                 this.WooCommerceOrderDetail.Amount := Amount;
@@ -75,8 +76,7 @@ codeunit 66005 "Fetch Woo Commerce Orders"
                 foreach MetaDataToken in MetaDataArray do
                     case true of
                         //'_wcpdf_invoice_number' = this.TextValue('key', MetaDataToken):
-                        'wpo_wcpdf_invoice_number' = this.TextValue('key', MetaDataToken):
-                            this.WooCommerceOrderDetail."Invoice No." := CopyStr(this.CodeValue('value', MetaDataToken), 1, MaxStrLen(this.WooCommerceOrderDetail."Invoice No."));
+                        //this.WooCommerceOrderDetail."Invoice No." := CopyStr(this.CodeValue('value', MetaDataToken), 1, MaxStrLen(this.WooCommerceOrderDetail."Invoice No."));
                         '_wcpdf_invoice_date_formatted' = this.TextValue('key', MetaDataToken):
                             begin
                                 Evaluate(InvoiceOrderDateTime, this.TextValue('value', MetaDataToken));
