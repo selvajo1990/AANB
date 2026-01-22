@@ -75,8 +75,6 @@ codeunit 66005 "Fetch Woo Commerce Orders"
                 MetaDataArray := MetaDataToken.AsArray();
                 foreach MetaDataToken in MetaDataArray do
                     case true of
-                        //'_wcpdf_invoice_number' = this.TextValue('key', MetaDataToken):
-                        //this.WooCommerceOrderDetail."Invoice No." := CopyStr(this.CodeValue('value', MetaDataToken), 1, MaxStrLen(this.WooCommerceOrderDetail."Invoice No."));
                         '_wcpdf_invoice_date_formatted' = this.TextValue('key', MetaDataToken):
                             begin
                                 Evaluate(InvoiceOrderDateTime, this.TextValue('value', MetaDataToken));
