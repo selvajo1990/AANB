@@ -44,6 +44,9 @@ table 66004 "LRI Stock Movement"
         field(1120; "Reason Description"; Text[250])
         {
         }
+        field(1130; "External Doc. No."; Code[20])
+        {
+        }
         field(1200; Processed; Boolean)
         {
             trigger OnValidate()

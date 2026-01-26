@@ -61,5 +61,6 @@ codeunit 66004 "AANB Event Mgmt."
 
         CustomerPostingGroup.Get(Cust."Customer Posting Group");
         SalesHeader."Order Type" := CustomerPostingGroup."Order Type";
+        SalesHeader."Ship-to Name 2" := CopyStr(SalesHeader."Ship-to Name", 1, MaxStrLen(SalesHeader."Ship-to Name 2"));
     end;
 }
