@@ -39,7 +39,7 @@ page 66004 "LRI Stock Movements"
                 {
                     ToolTip = 'Specifies the value of the Location Code field.', Comment = '%';
                 }
-                field("External Doc. No."; Rec."External Doc. No.")
+                field("External Doc. No."; Rec."Reference Order No.")
                 {
                     ToolTip = 'Specifies the value of the External Doc. No. field.';
                 }

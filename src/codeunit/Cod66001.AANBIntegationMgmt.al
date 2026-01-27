@@ -9,7 +9,6 @@ codeunit 66001 "AANB Integation Mgmt."
         JArray: JsonArray;
         Counter: Integer;
         StocksAddedTxt: Label 'Transactions added successfully!';
-        TransactionAlreadyProcessedErr: Label 'Transaction posted in ERP for %1: %2, %3: %4. You are not allowed to change.', Comment = '%1,%2,%3,%4';
     begin
         JObject.ReadFrom(request);
         JObject.SelectToken('details', JToken);
@@ -21,6 +20,7 @@ codeunit 66001 "AANB Integation Mgmt."
 
             LRIStockMovement.Init();
             LRIStockMovement."Document No." := CopyStr(this.CodeValue('documentNo', JToken), 1, MaxStrLen(LRIStockMovement."Document No."));
+            LRIStockMovement."Reference Order No." := CopyStr(this.TextValue('referenceOrderNo', JToken), 1, MaxStrLen(LRIStockMovement."Reference Order No."));
             LRIStockMovement."Product Id" := CopyStr(this.CodeValue('productId', JToken), 1, MaxStrLen(LRIStockMovement."Product Id"));
             LRIStockMovement.Description := CopyStr(this.TextValueMaximum('description', JToken), 1, MaxStrLen(LRIStockMovement.Description));
             LRIStockMovement.Qty := this.DecimalValue('qty', JToken);
@@ -40,16 +40,7 @@ codeunit 66001 "AANB Integation Mgmt."
             LRIStockMovement."Location Code" := CopyStr(this.CodeValue('locationCode', JToken), 1, MaxStrLen(LRIStockMovement."Location Code"));
             LRIStockMovement."Reason Code" := CopyStr(this.CodeValue('reasonCode', JToken), 1, MaxStrLen(LRIStockMovement."Reason Code"));
             LRIStockMovement."Reason Description" := CopyStr(this.TextValue('reasonDescription', JToken), 1, MaxStrLen(LRIStockMovement."Reason Description"));
-            LRIStockMovement.SetRecFilter();
-            if LRIStockMovement.IsEmpty() then
-                LRIStockMovement.Insert(true)
-            else begin
-                LRIStockMovement.FindFirst();
-                if not LRIStockMovement.Processed then
-                    LRIStockMovement.Modify(true)
-                else
-                    Error(TransactionAlreadyProcessedErr, LRIStockMovement.FieldCaption("Document No."), LRIStockMovement."Document No.", LRIStockMovement.FieldCaption("Entry Type"), LRIStockMovement."Entry Type");
-            end;
+            LRIStockMovement.Insert(true)
         end;
         exit(StocksAddedTxt);
     end;

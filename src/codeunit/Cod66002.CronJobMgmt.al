@@ -139,9 +139,9 @@ codeunit 66002 "Cron Job Mgmt."
         if LRIStockMovement.FindSet() then
             repeat
                 ClearLastError();
-                if LRIStockMovement."External Doc. No." > '' then begin
+                if LRIStockMovement."Reference Order No." > '' then begin
                     LRIStockMovement.TestField("Entry Type", LRIStockMovement."Entry Type"::Sales);
-                    SalesHeader.Get(SalesHeader."Document Type"::Order, LRIStockMovement."External Doc. No.");
+                    SalesHeader.Get(SalesHeader."Document Type"::Order, LRIStockMovement."Reference Order No.");
                     SalesHeader.SetHideValidationDialog(true);
                     SalesHeader.Ship := true;
                     SalesHeader.Invoice := true;
