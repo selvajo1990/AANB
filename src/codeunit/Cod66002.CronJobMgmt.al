@@ -146,6 +146,7 @@ codeunit 66002 "Cron Job Mgmt."
                     SalesHeader.Ship := true;
                     SalesHeader.Invoice := true;
                     SalesHeader."Posting Date" := LRIStockMovement."Entry Date";
+                    SalesHeader.Modify();
                     Clear(SalesPost);
                     SalesPost.SetPostingFlags(SalesHeader);
                     SalesPost.SetSuppressCommit(true);
