@@ -82,9 +82,10 @@ codeunit 66001 "AANB Integation Mgmt."
     procedure EntryTypeEnum(Path: Text[100]; JTokenIn: JsonToken) LRIStockMovementType: Enum "LRI Stock Movement Type"
     var
         JTokenOut: JsonToken;
+        InvalidDocumentTypeErr: Label 'We have received invalid document type. %1', Comment = '%1';
     begin
         JTokenIn.SelectToken(Path, JTokenOut);
-        case JTokenOut.AsValue().AsText().ToUpper() of
+        case JTokenOut.AsValue().AsText() of
             'Purchase':
                 exit(LRIStockMovementType::Purchase);
             'Purchase Return':
@@ -93,7 +94,8 @@ codeunit 66001 "AANB Integation Mgmt."
                 exit(LRIStockMovementType::Sales);
             'Sales Return':
                 exit(LRIStockMovementType::"Sales Return");
-
+            else
+                Error(InvalidDocumentTypeErr, JTokenOut.AsValue().AsText());
         end
     end;
 

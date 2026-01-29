@@ -8,7 +8,7 @@ table 66004 "LRI Stock Movement"
         field(1; "Entry Type"; Enum "LRI Stock Movement Type")
         {
         }
-        field(2; "Document No."; Code[20])
+        field(2; "Document No."; Code[50])
         {
         }
         field(3; "Product Id"; Code[20])
