@@ -20,7 +20,7 @@ codeunit 66001 "AANB Integation Mgmt."
 
             LRIStockMovement.Init();
             LRIStockMovement."Document No." := CopyStr(this.CodeValue('documentNo', JToken), 1, MaxStrLen(LRIStockMovement."Document No."));
-            LRIStockMovement."Reference Order No." := CopyStr(this.TextValue('referenceOrderNo', JToken), 1, MaxStrLen(LRIStockMovement."Reference Order No."));
+            LRIStockMovement."Reference Order No." := CopyStr(this.CodeValue('referenceOrderNo', JToken), 1, MaxStrLen(LRIStockMovement."Reference Order No."));
             LRIStockMovement."Product Id" := CopyStr(this.CodeValue('productId', JToken), 1, MaxStrLen(LRIStockMovement."Product Id"));
             LRIStockMovement.Description := CopyStr(this.TextValueMaximum('description', JToken), 1, MaxStrLen(LRIStockMovement.Description));
             LRIStockMovement.Qty := this.DecimalValue('qty', JToken);

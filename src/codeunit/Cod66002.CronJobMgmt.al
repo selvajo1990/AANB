@@ -126,52 +126,69 @@ codeunit 66002 "Cron Job Mgmt."
     procedure ProcessSelectedMovmentJournal(var LRIStockMovement: Record "LRI Stock Movement")
     var
         IntegrationDataLog: Record "Integration Data Log";
+        LRIStockMovement2: Record "LRI Stock Movement";
         AANBSetup: Record "AANB Setup";
         SalesHeader: Record "Sales Header";
         SalesPost: Codeunit "Sales-Post";
         IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
         IntegrationDataType: Enum "Integration Data Type";
+        xReferenceOrderNo: Text[20];
         SuccessCommentTxt: Label '1 journal line posted';
         FailedCommentTxt: Label '1 journal line not posted. ';
     begin
         AANBSetup.Get();
         LRIStockMovement.SetRange("Processed", false);
+        LRIStockMovement.SetRange("Reference Order No.", '');
         if LRIStockMovement.FindSet() then
             repeat
                 ClearLastError();
-                if LRIStockMovement."Reference Order No." > '' then begin
-                    LRIStockMovement.TestField("Entry Type", LRIStockMovement."Entry Type"::Sales);
+
+                Clear(IntegrationDataMgmt);
+                IntegrationDataMgmt.SetJournalData(LRIStockMovement, Format(IntegrationDataType::"Post Movement"), AANBSetup);
+                if not IntegrationDataMgmt.Run() then begin
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
+                    if GuiAllowed then
+                        Message(GetLastErrorText());
+                end else begin
+                    LRIStockMovement.Validate(Processed, true);
+                    LRIStockMovement.Modify();
+                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
+                end;
+                Commit();
+
+            until LRIStockMovement.Next() = 0;
+
+        LRIStockMovement.SetCurrentKey("Reference Order No.");
+        LRIStockMovement.SetRange("Processed", false);
+        LRIStockMovement.SetFilter("Reference Order No.", '>%1', '');
+        LRIStockMovement.SetRange("Entry Type", LRIStockMovement."Entry Type"::Sales);
+        if LRIStockMovement.FindSet() then
+            repeat
+                if LRIStockMovement."Reference Order No." <> xReferenceOrderNo then begin
                     SalesHeader.Get(SalesHeader."Document Type"::Order, LRIStockMovement."Reference Order No.");
                     SalesHeader.SetHideValidationDialog(true);
                     SalesHeader.Ship := true;
                     SalesHeader.Invoice := true;
-                    SalesHeader."Posting Date" := LRIStockMovement."Entry Date";
+                    SalesHeader.Validate("Posting Date", LRIStockMovement."Entry Date");
                     SalesHeader.Modify();
                     Clear(SalesPost);
                     SalesPost.SetPostingFlags(SalesHeader);
                     SalesPost.SetSuppressCommit(true);
                     if not SalesPost.Run(SalesHeader) then begin
-                        LRIStockMovement.Validate(Processed, true);
-                        LRIStockMovement.Modify();
-                    end else begin
-                        LRIStockMovement.Validate(Processed, false);
-                        LRIStockMovement.Modify();
-                    end;
-                end else begin
-                    Clear(IntegrationDataMgmt);
-                    IntegrationDataMgmt.SetJournalData(LRIStockMovement, Format(IntegrationDataType::"Post Movement"), AANBSetup);
-                    if not IntegrationDataMgmt.Run() then begin
                         IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
                         if GuiAllowed then
                             Message(GetLastErrorText());
                     end else begin
-                        LRIStockMovement.Validate(Processed, true);
-                        LRIStockMovement.Modify();
-                        IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
+                        LRIStockMovement2.SetRange("Reference Order No.", LRIStockMovement."Reference Order No.");
+                        if LRIStockMovement2.FindSet() then
+                            repeat
+                                LRIStockMovement2.Validate(Processed, true);
+                                LRIStockMovement2.Modify();
+                            until LRIStockMovement2.Next() = 0;
                     end;
                     Commit();
                 end;
-
+                xReferenceOrderNo := LRIStockMovement."Reference Order No.";
             until LRIStockMovement.Next() = 0;
     end;
 
