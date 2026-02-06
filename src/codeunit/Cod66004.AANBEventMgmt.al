@@ -9,7 +9,7 @@ codeunit 66004 "AANB Event Mgmt."
             exit;
 
         this.ValidateB2BSalesOrder(SalesHeader);
-        if not PreviewMode then
+        if not PreviewMode and not SalesHeader."Sent To LRI" then
             CronJobMgmt.PushSingleSalesOrderToLRI(SalesHeader);
     end;
 

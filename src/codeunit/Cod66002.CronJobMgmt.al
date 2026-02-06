@@ -79,6 +79,26 @@ codeunit 66002 "Cron Job Mgmt."
             until LRIItem.Next() = 0;
     end;
 
+    procedure FetchAllProductFromLRI()
+    var
+        AANBSetup: Record "AANB Setup";
+        IntegrationDataLog: Record "Integration Data Log";
+        IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+        IntegrationDataType: Enum "Integration Data Type";
+        SuccessCommentTxt: Label '%1 order pushed', Comment = '%1';
+        FailedCommentTxt: Label '%1 order not pushed. ', Comment = '%1';
+    begin
+        AANBSetup.Get();
+        IntegrationDataMgmt.SetFetchAllProductData(Format(IntegrationDataType::"Fetch Item"), AANBSetup);
+        if not IntegrationDataMgmt.Run() then begin
+            IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Fetch Item"), '', IntegrationDataLog."Record ID", StrSubstNo(FailedCommentTxt, 1) + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Fetch Item");
+            if GuiAllowed then
+                Message(GetLastErrorText());
+        end else
+            IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Fetch Item"), '', IntegrationDataLog."Record ID", StrSubstNo(SuccessCommentTxt, 1), IntegrationDataLog."Integration Data Type"::Information);
+    end;
+
+
     procedure PushSingleSalesOrderToLRI(var SalesHeader: Record "Sales Header")
     var
         AANBSetup: Record "AANB Setup";
@@ -104,24 +124,6 @@ codeunit 66002 "Cron Job Mgmt."
         end;
     end;
 
-    procedure FetchAllProductFromLRI()
-    var
-        AANBSetup: Record "AANB Setup";
-        IntegrationDataLog: Record "Integration Data Log";
-        IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
-        IntegrationDataType: Enum "Integration Data Type";
-        SuccessCommentTxt: Label '%1 order pushed', Comment = '%1';
-        FailedCommentTxt: Label '%1 order not pushed. ', Comment = '%1';
-    begin
-        AANBSetup.Get();
-        IntegrationDataMgmt.SetFetchAllProductData(Format(IntegrationDataType::"Fetch Item"), AANBSetup);
-        if not IntegrationDataMgmt.Run() then begin
-            IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Fetch Item"), '', IntegrationDataLog."Record ID", StrSubstNo(FailedCommentTxt, 1) + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Fetch Item");
-            if GuiAllowed then
-                Message(GetLastErrorText());
-        end else
-            IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Fetch Item"), '', IntegrationDataLog."Record ID", StrSubstNo(SuccessCommentTxt, 1), IntegrationDataLog."Integration Data Type"::Information);
-    end;
 
     procedure ProcessSelectedMovmentJournal(var LRIStockMovement: Record "LRI Stock Movement")
     var
@@ -171,6 +173,7 @@ codeunit 66002 "Cron Job Mgmt."
                     SalesHeader.Invoice := true;
                     SalesHeader.Validate("Posting Date", LRIStockMovement."Entry Date");
                     SalesHeader.Modify();
+                    Commit();
                     Clear(SalesPost);
                     SalesPost.SetPostingFlags(SalesHeader);
                     SalesPost.SetSuppressCommit(true);
