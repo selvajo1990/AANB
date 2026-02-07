@@ -35,6 +35,10 @@ pageextension 66000 "Sales Order" extends "Sales Order"
         }
         moveafter("External Document No."; "Shipping Agent Code")
 
+        modify("External Document No.")
+        {
+            Editable = false;
+        }
 
         // addafter("Sell-to Customer Name")
         // {

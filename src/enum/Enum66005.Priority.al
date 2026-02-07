@@ -2,16 +2,21 @@ enum 66005 "Priority Types"
 {
     Extensible = true;
 
-    value(0; "0")
+    value(3; " ")
     {
-        Caption = 'No Priority';
+        Caption = ' ';
     }
-    value(1; "1")
+    value(0; "0-No Priority")
     {
-        Caption = 'High Priority';
+        Caption = '0-No Priority';
     }
-    value(2; "5")
+    value(1; "1-High Priority")
     {
-        Caption = 'Low Priority';
+        Caption = '1-High Priority';
     }
+    value(5; "5-Low Priority")
+    {
+        Caption = '5-Low Priority';
+    }
+
 }

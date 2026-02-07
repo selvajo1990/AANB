@@ -49,8 +49,12 @@ codeunit 66003 "Integration Data Mgmt."
         DeliveryAddressObject: JsonObject;
         BillingAddressObject: JsonObject;
         JArray: JsonArray;
+        CommentsArray: JsonArray;
         JToken: JsonToken;
         JObject: JsonObject;
+        OrderObject: JsonObject;
+        OrderToken: JsonToken;
+        OrderId: Text[35];
     begin
         this.AANBSetup.TestField("Push Sales Order");
         this.AANBSetup.TestField("RCB No.");
@@ -76,7 +80,8 @@ codeunit 66003 "Integration Data Mgmt."
 
         SalesHeaderObject.Add('rcb', this.AANBSetup."RCB No.");
         SalesHeaderObject.Add('order_ref', this.SalesHeader."No.");
-        SalesHeaderObject.Add('carrier_code', 'SURPLACE');
+        SalesHeaderObject.Add('carrier_code', this.SalesHeader."Shipping Agent Code");
+        SalesHeaderObject.Add('priority', this.SalesHeader.Priority.AsInteger());
         SalesHeaderObject.Add('ttc', '29.99');
         SalesHeaderObject.Add('cash_on_delivery', 'false');
         SalesHeaderObject.Add('b2b', 'true');
@@ -120,6 +125,11 @@ codeunit 66003 "Integration Data Mgmt."
                 JArray.Add(SalesLineObject);
             until SalesLine.Next() = 0;
         SalesHeaderObject.Add('items', JArray);
+
+        Clear(CommentsArray);
+        CommentsArray.Add(this.SalesHeader.GetWorkDescription());
+        SalesHeaderObject.Add('comments', CommentsArray);
+
         SalesHeaderObject.WriteTo(this.Request);
 
         this.EntryNo := this.TransactionLog.TransactionLog(this.TransactionLog."Entry Type"::"Outgoing Request", 0,
@@ -137,6 +147,17 @@ codeunit 66003 "Integration Data Mgmt."
             this.HttpResponse.Content().ReadAs(this.Response);
             this.TransactionLog.TransactionLog(this.TransactionLog."Entry Type"::"Outgoing Response", this.EntryNo,
                                                this.TransactionLog.Status::Processed, this.SalesHeader."No.", ApiTemplateSetup, '', this.Response);
+
+            Clear(OrderObject);
+            OrderObject.ReadFrom(this.Response);
+
+            if OrderObject.Get('orderId', OrderToken) then begin
+                OrderId := CopyStr(OrderToken.AsValue().AsText(), 1, MaxStrLen(OrderId));
+
+                this.SalesHeader.Validate("External Document No.", OrderId);
+                this.SalesHeader.Modify();
+            end;
+
             Commit();
         end else begin
             this.HttpResponse.Content().ReadAs(this.Response);
