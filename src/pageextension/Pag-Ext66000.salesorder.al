@@ -10,13 +10,32 @@ pageextension 66000 "Sales Order" extends "Sales Order"
                 Editable = false;
                 ToolTip = 'Specifies the value of the Order Type field.';
             }
-            field("Sent To LRI"; Rec."Sent To LRI")
+            group(LRI)
             {
-                ApplicationArea = All;
-                Editable = false;
-                ToolTip = 'Specifies the value of the Sent To LRI field.';
+
+                field("Sent To LRI"; Rec."Sent To LRI")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the value of the Sent To LRI field.';
+                }
+                field(Priority; Rec.Priority)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Priority field.';
+                }
             }
         }
+
+        moveafter("Sent To LRI"; "External Document No.")
+
+        modify("Shipping Agent Code")
+        {
+            Caption = 'Carrier';
+        }
+        moveafter("External Document No."; "Shipping Agent Code")
+
+
         // addafter("Sell-to Customer Name")
         // {
         //     field("Sell-to Customer Name 2"; Rec."Sell-to Customer Name 2")
