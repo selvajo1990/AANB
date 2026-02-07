@@ -116,6 +116,7 @@ codeunit 66002 "Cron Job Mgmt."
             if GuiAllowed then
                 Error(GetLastErrorText());
         end else begin
+            SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
             SalesHeader."Sent To LRI" := true;
             SalesHeader.Modify();
             Commit();
