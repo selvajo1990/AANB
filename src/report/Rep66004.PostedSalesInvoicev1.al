@@ -10,46 +10,46 @@ report 66004 "Posted Sales Invoice v1"
         dataitem(SalesInvoiceHeader; "Sales Invoice Header")
         {
             RequestFilterFields = "No.";
-            column(CompanyInformation_Name; CompanyInformation.Name)
+            column(CompanyInformation_Name; this.CompanyInformation.Name)
             {
             }
-            column(CompanyInformation_Address; CompanyInformation.Address)
+            column(CompanyInformation_Address; this.CompanyInformation.Address)
             {
             }
-            column(CompanyInformation_Address2; CompanyInformation."Address 2")
+            column(CompanyInformation_Address2; this.CompanyInformation."Address 2")
             {
             }
-            column(CompanyInformation_city; CompanyInformation.City)
+            column(CompanyInformation_city; this.CompanyInformation.City)
             {
             }
-            column(CompanyInformation_VAT; CompanyInformation."VAT Registration No.")
+            column(CompanyInformation_VAT; this.CompanyInformation."VAT Registration No.")
             {
             }
-            column(CountryRegion_code; CountryRegion.Get(CompanyInformation."Country/Region Code"))
+            column(CountryRegion_code; this.Companycountry)
             {
             }
-            column(CompanyInformation_picture; CompanyInformation.Picture)
+            column(CompanyInformation_picture; this.CompanyInformation.Picture)
             {
             }
-            column(Bank_name; CompanyInformation."Bank Name")
+            column(Bank_name; this.CompanyInformation."Bank Name")
             {
             }
-            column(IBAN; CompanyInformation.IBAN)
+            column(IBAN; this.CompanyInformation.IBAN)
             {
             }
-            column(SwiftCode; CompanyInformation."SWIFT Code")
+            column(SwiftCode; this.CompanyInformation."SWIFT Code")
             {
             }
             column(InvoiceNo_; "No.")
             {
             }
-            column(Invoice_Date; "Document Date")
+            column(Invoice_Date; Format("Document Date"))
             {
             }
             column(Order_No_; "Order No.")
             {
             }
-            column(Order_Date; "Order Date")
+            column(Order_Date; Format("Order Date"))
             {
             }
             column(Bill_to_Name; "Bill-to Name")
@@ -61,7 +61,7 @@ report 66004 "Posted Sales Invoice v1"
             column(Bill_to_Address_2; "Bill-to Address 2")
             {
             }
-            column(Bill_to_Country_Region_Code; CountryRegion.Get("Bill-to Country/Region Code"))
+            column(Bill_to_Country_Region_Code; this.BillCountry)
             {
             }
             column(VAT_Registration_No_; "VAT Registration No.")
@@ -76,7 +76,7 @@ report 66004 "Posted Sales Invoice v1"
             column(Ship_to_Address_2; "Ship-to Address 2")
             {
             }
-            column(Ship_to_Country_Region_Code; "Ship-to Country/Region Code")
+            column(Ship_to_Country_Region_Code; this.ShipCountry)
             {
             }
             dataitem("Sales Invoice Line"; "Sales Invoice Line")
@@ -100,17 +100,30 @@ report 66004 "Posted Sales Invoice v1"
                 column(Line_Amount; "Line Amount")
                 {
                 }
-                column(Line_Discount_Amount; -("Line Discount Amount" + "Inv. Discount Amount"))
+                column(Line_Discount_Amount; ("Line Discount Amount" + "Inv. Discount Amount"))
                 {
                 }
-                column(VatAmount; "Unit Price" * "VAT %")
+                column(VatAmount; this.VatAmount)
                 {
                 }
                 column(Amount_Including_VAT; "Amount Including VAT")
                 {
                 }
+                trigger OnAfterGetRecord()
+                begin
+                    this.VatAmount := "Amount Including VAT" - "Line Amount";
+                end;
 
             }
+            trigger OnAfterGetRecord()
+            begin
+                this.CountryRegion.Get(this.CompanyInformation."Country/Region Code");
+                this.Companycountry := this.CountryRegion.Name;
+                this.CountryRegion.Get("Bill-to Country/Region Code");
+                this.BillCountry := this.CountryRegion.Name;
+                this.CountryRegion.Get("Ship-to Country/Region Code");
+                this.ShipCountry := this.CountryRegion.Name;
+            end;
         }
     }
     requestpage
@@ -133,10 +146,16 @@ report 66004 "Posted Sales Invoice v1"
     }
     trigger OnInitReport()
     begin
-        CompanyInformation.Get();
+        this.CompanyInformation.Get();
+        this.CompanyInformation.CalcFields(Picture);
     end;
 
     var
         CompanyInformation: Record "Company Information";
         CountryRegion: Record "Country/Region";
+        Companycountry, BillCountry, ShipCountry : Text[100];
+        VatAmount: Decimal;
+
+
+
 }
