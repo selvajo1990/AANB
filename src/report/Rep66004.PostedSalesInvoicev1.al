@@ -117,12 +117,12 @@ report 66004 "Posted Sales Invoice v1"
             }
             trigger OnAfterGetRecord()
             begin
-                this.CountryRegion.Get(this.CompanyInformation."Country/Region Code");
-                this.Companycountry := this.CountryRegion.Name;
-                this.CountryRegion.Get("Bill-to Country/Region Code");
-                this.BillCountry := this.CountryRegion.Name;
-                this.CountryRegion.Get("Ship-to Country/Region Code");
-                this.ShipCountry := this.CountryRegion.Name;
+                if this.CountryRegion.Get(this.CompanyInformation."Country/Region Code") then
+                    this.Companycountry := this.CountryRegion.Name;
+                if this.CountryRegion.Get("Bill-to Country/Region Code") then
+                    this.BillCountry := this.CountryRegion.Name;
+                if this.CountryRegion.Get("Ship-to Country/Region Code") then
+                    this.ShipCountry := this.CountryRegion.Name;
             end;
         }
     }
