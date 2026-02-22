@@ -1,9 +1,8 @@
-report 66001 "Pforma Invoice"
+report 66001 "Pforma Invoice - AANB"
 {
     ApplicationArea = All;
-    Caption = 'Pforma Invoice';
     DefaultLayout = RDLC;
-    RDLCLayout = './src/report/Layouts/Pforma Invoice.rdl';
+    RDLCLayout = './res/Pro Forma Invoice.rdl';
     UsageCategory = ReportsAndAnalysis;
     dataset
     {
@@ -37,7 +36,7 @@ report 66001 "Pforma Invoice"
             column(Currency; this.GeneralLedgerSetup."LCY Code")
             {
             }
-            column(Shipping_Address; this.Location." Shipping Address")
+            column(Shipping_Address; this.Location."Shipping Address")
             {
             }
             column(Shipping_Address2; this.Location."Shipping Address 2")
@@ -46,7 +45,7 @@ report 66001 "Pforma Invoice"
             column(Shipping_city; this.Location."Shipping City")
             {
             }
-            column(Shipping_postcode; this.Location."Shipping post Code")
+            column(Shipping_postcode; this.Location."Shipping Post Code")
             {
             }
             column(Shipping_country; this.Location."Shipping Country/Region Code")

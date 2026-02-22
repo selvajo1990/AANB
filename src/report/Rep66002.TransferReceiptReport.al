@@ -3,7 +3,7 @@ report 66002 "Transfer Receipt Report"
     ApplicationArea = All;
     Caption = 'Transfer Receipt';
     DefaultLayout = RDLC;
-    RDLCLayout = './src/report/Layouts/Transfer Receipt Report.rdl';
+    RDLCLayout = './res/Transfer Receipt Report.rdl';
     UsageCategory = ReportsAndAnalysis;
     dataset
     {
@@ -37,7 +37,7 @@ report 66002 "Transfer Receipt Report"
             column(Currency; this.GeneralLedgerSetup."LCY Code")
             {
             }
-            column(Shipping_Address; this.Location." Shipping Address")
+            column(Shipping_Address; this.Location."Shipping Address")
             {
             }
             column(Shipping_Address2; this.Location."Shipping Address 2")
@@ -46,7 +46,7 @@ report 66002 "Transfer Receipt Report"
             column(Shipping_city; this.Location."Shipping City")
             {
             }
-            column(Shipping_postcode; this.Location."Shipping post Code")
+            column(Shipping_postcode; this.Location."Shipping Post Code")
             {
             }
             column(Shipping_country; this.Location."Shipping Country/Region Code")

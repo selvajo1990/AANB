@@ -3,7 +3,7 @@ report 66003 "Posted Credit Memo invoice V1"
     ApplicationArea = All;
     UsageCategory = ReportsAndAnalysis;
     DefaultLayout = RDLC;
-    RDLCLayout = './src/report/Layouts/POsted creditmemo Invoice.rdl';
+    RDLCLayout = './res/Posted Credit Memo.rdl';
     dataset
     {
         dataitem("Sales Cr.Memo Header"; "Sales Cr.Memo Header")

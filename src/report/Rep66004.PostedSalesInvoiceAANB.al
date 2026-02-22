@@ -1,10 +1,9 @@
-report 66004 "Posted Sales Invoice v1"
+report 66004 "Posted Sales Invoice - AANB"
 {
     ApplicationArea = All;
-    Caption = 'Posted Sales Invoice v1';
     UsageCategory = ReportsAndAnalysis;
     DefaultLayout = RDLC;
-    RDLCLayout = './src/report/Layouts/POsted Sales Invoice1.rdl';
+    RDLCLayout = './res/Posted Sales Invoice.rdl';
     dataset
     {
         dataitem(SalesInvoiceHeader; "Sales Invoice Header")

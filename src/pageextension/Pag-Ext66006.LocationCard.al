@@ -6,7 +6,7 @@ pageextension 66006 "Location Card" extends "Location Card"
         {
             group("Shipping Address")
             {
-                field("Shipping Address_"; Rec." Shipping Address")
+                field("Shipping Address_"; Rec."Shipping Address")
                 {
                     ApplicationArea = All;
                     Caption = 'Address';
@@ -24,7 +24,7 @@ pageextension 66006 "Location Card" extends "Location Card"
                     Caption = 'City';
                     ToolTip = 'Specifies the value of the City field.';
                 }
-                field("Shipping post Code"; Rec."Shipping post Code")
+                field("Shipping post Code"; Rec."Shipping Post Code")
                 {
                     ApplicationArea = All;
                     Caption = 'Post Code';
