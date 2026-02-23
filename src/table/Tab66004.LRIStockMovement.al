@@ -73,6 +73,10 @@ table 66004 "LRI Stock Movement"
         {
             Clustered = true;
         }
+        key(SK; "Reference Order No.")
+        {
+
+        }
     }
     trigger OnDelete()
     var
