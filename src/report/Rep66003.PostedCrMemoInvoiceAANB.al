@@ -1,4 +1,4 @@
-report 66003 "Posted Credit Memo invoice V1"
+report 66003 "Posted Cr.Memo Invoice- AANB"
 {
     ApplicationArea = All;
     UsageCategory = ReportsAndAnalysis;
