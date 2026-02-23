@@ -198,11 +198,15 @@ codeunit 66002 "Cron Job Mgmt."
 
     procedure ProcessAllMovmentJournal()
     var
-        AANBSetup: Record "AANB Setup";
-        LRIStockMovement: Record "LRI Stock Movement";
         IntegrationDataLog: Record "Integration Data Log";
+        LRIStockMovement: Record "LRI Stock Movement";
+        LRIStockMovement2: Record "LRI Stock Movement";
+        AANBSetup: Record "AANB Setup";
+        SalesHeader: Record "Sales Header";
+        SalesPost: Codeunit "Sales-Post";
         IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
         IntegrationDataType: Enum "Integration Data Type";
+        xReferenceOrderNo: Text[20];
         SuccessCommentTxt: Label '1 journal line posted';
         FailedCommentTxt: Label '1 journal line not posted. ';
     begin
@@ -223,6 +227,42 @@ codeunit 66002 "Cron Job Mgmt."
                     IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
                 end;
                 Commit();
+            until LRIStockMovement.Next() = 0;
+
+        Clear(LRIStockMovement);
+
+        LRIStockMovement.SetCurrentKey("Reference Order No.");
+        LRIStockMovement.SetRange("Processed", false);
+        LRIStockMovement.SetFilter("Reference Order No.", '>%1', '');
+        LRIStockMovement.SetRange("Entry Type", LRIStockMovement."Entry Type"::Sales);
+        if LRIStockMovement.FindSet() then
+            repeat
+                if LRIStockMovement."Reference Order No." <> xReferenceOrderNo then begin
+                    SalesHeader.Get(SalesHeader."Document Type"::Order, LRIStockMovement."Reference Order No.");
+                    SalesHeader.SetHideValidationDialog(true);
+                    SalesHeader.Ship := true;
+                    SalesHeader.Invoice := true;
+                    SalesHeader.Validate("Posting Date", LRIStockMovement."Entry Date");
+                    SalesHeader.Modify();
+                    Commit();
+                    Clear(SalesPost);
+                    SalesPost.SetPostingFlags(SalesHeader);
+                    SalesPost.SetSuppressCommit(true);
+                    if not SalesPost.Run(SalesHeader) then begin
+                        IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
+                        if GuiAllowed then
+                            Message(GetLastErrorText());
+                    end else begin
+                        LRIStockMovement2.SetRange("Reference Order No.", LRIStockMovement."Reference Order No.");
+                        if LRIStockMovement2.FindSet() then
+                            repeat
+                                LRIStockMovement2.Validate(Processed, true);
+                                LRIStockMovement2.Modify();
+                            until LRIStockMovement2.Next() = 0;
+                    end;
+                    Commit();
+                end;
+                xReferenceOrderNo := LRIStockMovement."Reference Order No.";
             until LRIStockMovement.Next() = 0;
     end;
 
@@ -328,6 +368,65 @@ codeunit 66002 "Cron Job Mgmt."
                 end;
                 Commit();
             until WooCommerceOrderDetail.Next() = 0;
+    end;
+
+    procedure CreateSalesReturnOrder(var LRIStockMovement: Record "LRI Stock Movement")
+    var
+        SalesandReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+        CopySalesDocument: Report "Copy Sales Document";
+        ReleaseSalesDocument: Codeunit "Release Sales Document";
+        NoSeries: Codeunit "No. Series";
+        DocType: Enum "Sales Document Type From";
+        Amount, AdditionalCharge : Decimal;
+        LineNo: Integer;
+        OrderNotPostedErr: Label 'Order needs to be closed before proceeding with return.❌';
+        ReturnCreatedTxt: Label 'Return order created successfully.🆕';
+        ReturnFailedErr: Label 'Order status must be of Dispatched/Delivered/Delivery Failed.❌\Bike Id: %1', Comment = '%1';
+        ConfirmationQst: Label 'This action send refund information to finance team💵 ,Do you want to continue?👈', Comment = '%1';
+    begin
+        if not Confirm(ConfirmationQst) then
+            exit;
+        SalesInvoiceHeader.SetCurrentKey("Order No.");
+        SalesInvoiceHeader.SetRange("Order No.", LRIStockMovement."Reference Order No.");
+        if not SalesInvoiceHeader.IsEmpty() then
+            Error(OrderNotPostedErr);
+
+        SalesHeader.Init();
+        SalesHeader.SetHideValidationDialog(true);
+        SalesHeader.TransferFields(SalesInvoiceHeader);
+        SalesHeader."Document Type" := SalesHeader."Document Type"::"Return Order";
+        SalesHeader.Validate("Order Date", LRIStockMovement."Entry Date");
+        SalesHeader.Validate("Posting Date", LRIStockMovement."Entry Date");
+        SalesHeader."External Document No." := CopyStr(LRIStockMovement."Reference Order No.", 1, 35);
+        SalesHeader."No." := NoSeries.GetNextNo(SalesandReceivablesSetup."Return Order Nos.", 0D, true);
+        SalesHeader."Posting No. Series" := NoSeries.GetNextNo(SalesandReceivablesSetup."Posted Credit Memo Nos.", 0D, true);
+        SalesHeader."Posting No." := NoSeries.GetNextNo(SalesandReceivablesSetup."Posted Credit Memo Nos.", 0D, true);
+        SalesHeader.TestField("Posting No.");
+        SalesHeader.Validate("Location Code", LRIStockMovement."Location Code");
+        //SalesHeader.Validate("Payment Method Code", CommercePaymentInformation."Payment Method Code");
+        SalesHeader."Your Reference" := LRIStockMovement."Reference Order No.";
+        SalesHeader.Insert(true);
+
+        Clear(CopySalesDocument);
+        CopySalesDocument.UseRequestPage(false);
+        CopySalesDocument.SetSalesHeader(SalesHeader);
+        CopySalesDocument.SetParameters(DocType::"Posted Invoice", SalesInvoiceHeader."No.", true, false);
+        CopySalesDocument.Run();
+
+        // Change to return delivery account
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Return Order");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindLast() then
+            LineNo := SalesLine."Line No." + 10000;
+
+        SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
+
+
+
     end;
 
 }
