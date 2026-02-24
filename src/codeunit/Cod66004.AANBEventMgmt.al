@@ -8,6 +8,9 @@ codeunit 66004 "AANB Event Mgmt."
         if SalesHeader."Order Type" <> SalesHeader."Order Type"::B2B then
             exit;
 
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order" then
+            exit;
+
         this.ValidateB2BSalesOrder(SalesHeader);
         if not PreviewMode and not SalesHeader."Sent To LRI" then
             CronJobMgmt.PushSingleSalesOrderToLRI(SalesHeader);

@@ -136,21 +136,20 @@ codeunit 66002 "Cron Job Mgmt."
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         LRIStockMovement2: Record "LRI Stock Movement";
+        LRIStockMovement3: Record "LRI Stock Movement";
         AANBSetup: Record "AANB Setup";
-        SalesPost: Codeunit "Sales-Post";
+        CopySalesDocument: Report "Copy Sales Document";
+        ReleaseSalesDocument: Codeunit "Release Sales Document";
+        NoSeries: Codeunit "No. Series";
         IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+        SalesPost: Codeunit "Sales-Post";
+        DocType: Enum "Sales Document Type From";
         IntegrationDataType: Enum "Integration Data Type";
         xReferenceOrderNo: Text[20];
         SuccessCommentTxt: Label '1 journal line posted';
         FailedCommentTxt: Label '1 journal line not posted. ';
-        LRIStockMovement3: Record "LRI Stock Movement";
-        CopySalesDocument: Report "Copy Sales Document";
-        ReleaseSalesDocument: Codeunit "Release Sales Document";
-        NoSeries: Codeunit "No. Series";
-        DocType: Enum "Sales Document Type From";
         ItemToReturn: Text;
         OrderNotPostedErr: Label 'Order needs to be closed before proceeding with return.❌';
-        ReturnCreatedTxt: Label 'Return order created successfully.🆕';
     begin
         AANBSetup.Get();
         LRIStockMovement.SetRange("Processed", false);
@@ -192,7 +191,7 @@ codeunit 66002 "Cron Job Mgmt."
                     SalesPost.SetPostingFlags(SalesHeader);
                     SalesPost.SetSuppressCommit(true);
                     if not SalesPost.Run(SalesHeader) then begin
-                        IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
+                        IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), SalesHeader."No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
                         if GuiAllowed then
                             Message(GetLastErrorText());
                     end else begin
@@ -206,60 +205,96 @@ codeunit 66002 "Cron Job Mgmt."
                     Commit();
                 end;
                 xReferenceOrderNo := LRIStockMovement."Reference Order No.";
+            until LRIStockMovement.Next() = 0;
 
-                SalesInvoiceHeader.SetCurrentKey("Order No.");
-                SalesInvoiceHeader.SetRange("Order No.", LRIStockMovement."Reference Order No.");
-                if not SalesInvoiceHeader.IsEmpty() then
-                    Error(OrderNotPostedErr);
+        clear(xReferenceOrderNo);
+        Clear(SalesHeader);
+        LRIStockMovement.SetCurrentKey("Reference Order No.");
+        LRIStockMovement.SetRange("Processed", false);
+        LRIStockMovement.SetFilter("Reference Order No.", '>%1', '');
+        LRIStockMovement.SetRange("Entry Type", LRIStockMovement."Entry Type"::"Sales Return");
+        if LRIStockMovement.FindSet() then
+            repeat
+                if LRIStockMovement."Reference Order No." <> xReferenceOrderNo then begin
+                    SalesInvoiceHeader.SetCurrentKey("Order No.");
+                    SalesInvoiceHeader.SetRange("Order No.", LRIStockMovement."Reference Order No.");
+                    if not SalesInvoiceHeader.FindFirst() then
+                        Error(OrderNotPostedErr);
 
-                SalesHeader.Init();
-                SalesHeader.SetHideValidationDialog(true);
-                SalesHeader.TransferFields(SalesInvoiceHeader);
-                SalesHeader."Document Type" := SalesHeader."Document Type"::"Return Order";
-                SalesHeader.Validate("Order Date", LRIStockMovement."Entry Date");
-                SalesHeader.Validate("Posting Date", LRIStockMovement."Entry Date");
-                SalesHeader."External Document No." := CopyStr(LRIStockMovement."Reference Order No.", 1, 35);
-                SalesHeader."No." := NoSeries.GetNextNo(SalesandReceivablesSetup."Return Order Nos.", 0D, true);
-                SalesHeader."Posting No. Series" := NoSeries.GetNextNo(SalesandReceivablesSetup."Posted Credit Memo Nos.", 0D, true);
-                SalesHeader."Posting No." := NoSeries.GetNextNo(SalesandReceivablesSetup."Posted Credit Memo Nos.", 0D, true);
-                SalesHeader.TestField("Posting No.");
-                SalesHeader.Validate("Location Code", LRIStockMovement."Location Code");
-                SalesHeader."Your Reference" := LRIStockMovement."Reference Order No.";
-                SalesHeader.Insert(true);
+                    SalesHeader.Init();
+                    SalesHeader.SetHideValidationDialog(true);
+                    SalesHeader.TransferFields(SalesInvoiceHeader);
+                    SalesHeader."Document Type" := SalesHeader."Document Type"::"Return Order";
+                    SalesHeader.Validate("Order Date", LRIStockMovement."Entry Date");
+                    SalesHeader.Validate("Posting Date", LRIStockMovement."Entry Date");
+                    SalesHeader."External Document No." := CopyStr(LRIStockMovement."Reference Order No.", 1, 35);
+                    SalesHeader."No." := NoSeries.GetNextNo(SalesandReceivablesSetup."Return Order Nos.", 0D, true);
+                    // SalesHeader."Posting No. Series" := NoSeries.GetNextNo(SalesandReceivablesSetup."Posted Credit Memo Nos.", 0D, true);
+                    //SalesHeader."Posting No." := NoSeries.GetNextNo(SalesandReceivablesSetup."Posted Credit Memo Nos.", 0D, true);
+                    SalesHeader."Your Reference" := LRIStockMovement."Reference Order No.";
+                    SalesHeader.Insert(true);
 
-                Clear(CopySalesDocument);
-                CopySalesDocument.UseRequestPage(false);
-                CopySalesDocument.SetSalesHeader(SalesHeader);
-                CopySalesDocument.SetParameters(DocType::"Posted Invoice", SalesInvoiceHeader."No.", true, false);
-                CopySalesDocument.Run();
+                    Clear(CopySalesDocument);
+                    CopySalesDocument.UseRequestPage(false);
+                    CopySalesDocument.SetSalesHeader(SalesHeader);
+                    CopySalesDocument.SetParameters(DocType::"Posted Invoice", SalesInvoiceHeader."No.", true, false);
+                    CopySalesDocument.Run();
 
-                LRIStockMovement3.SetCurrentKey("Reference Order No.");
-                LRIStockMovement3.SetRange("Reference Order No.", LRIStockMovement."Reference Order No.");
-                LRIStockMovement3.FindSet();
-                repeat
-                    ItemToReturn += LRIStockMovement."Product Id";
-                until LRIStockMovement3.Next() = 0;
-
-                SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-                SalesLine.SetRange("Document No.", SalesHeader."No.");
-                SalesLine.SetRange(Type, SalesLine.Type::Item);
-                if SalesLine.FindSet() then
+                    LRIStockMovement3.SetCurrentKey("Reference Order No.");
+                    LRIStockMovement3.SetRange("Reference Order No.", LRIStockMovement."Reference Order No.");
+                    LRIStockMovement3.FindSet();
                     repeat
-                        if ItemToReturn.Contains(SalesLine."No.") then
-                            SalesLine.Validate("Return Qty. to Receive", 1)
-                        else
-                            SalesLine.Validate("Return Qty. to Receive", 0);
-                        SalesLine.Modify();
-                    until SalesLine.Next() = 0;
+                        ItemToReturn += LRIStockMovement."Product Id";
+                    until LRIStockMovement3.Next() = 0;
 
-                SalesLine.SetRange("Return Qty. to Receive", 0);
-                SalesLine.DeleteAll(true);
+                    SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+                    SalesLine.SetRange("Document No.", SalesHeader."No.");
+                    SalesLine.SetRange(Type, SalesLine.Type::Item);
+                    if SalesLine.FindSet() then
+                        repeat
+                            if ItemToReturn.Contains(SalesLine."No.") then begin
+                                LRIStockMovement3.SetRange("Product Id", SalesLine."No.");
+                                LRIStockMovement3.FindFirst();
+                                SalesLine.Validate("Return Qty. to Receive", LRIStockMovement3.Qty);
+                            end else
+                                SalesLine.Validate("Return Qty. to Receive", 0);
+                            SalesLine.Modify();
+                        until SalesLine.Next() = 0;
 
-                ReleaseSalesDocument.PerformManualRelease(SalesHeader);
+                    SalesLine.SetRange("Return Qty. to Receive", 0);
+                    SalesLine.DeleteAll(true);
 
-                Message(ReturnCreatedTxt);
+                    ReleaseSalesDocument.PerformManualRelease(SalesHeader);
 
+                    SalesLine.SetRange("Document No.", SalesHeader."No.");
+                    SalesLine.SetRange(Type, SalesLine.Type::Item);
+                    if SalesLine.FindSet() then
+                        repeat
+                            SalesLine.TestField("Return Qty. to Receive");
+                        until SalesLine.Next() = 0;
 
+                    SalesHeader.Receive := true;
+                    SalesHeader.Invoice := true;
+                    Commit();
+                    Clear(SalesPost);
+                    SalesPost.SetPostingFlags(SalesHeader);
+                    SalesPost.SetSuppressCommit(true);
+                    if not SalesPost.Run(SalesHeader) then begin
+                        IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), SalesHeader."No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
+                        if GuiAllowed then
+                            Message(GetLastErrorText());
+                    end else begin
+                        LRIStockMovement2.SetRange("Reference Order No.", LRIStockMovement."Reference Order No.");
+                        if LRIStockMovement2.FindSet() then
+                            repeat
+                                LRIStockMovement2.Validate(Processed, true);
+                                LRIStockMovement2.Modify();
+                            until LRIStockMovement2.Next() = 0;
+                    end;
+                    Commit();
+
+                end;
+                xReferenceOrderNo := LRIStockMovement."Reference Order No.";
             until LRIStockMovement.Next() = 0;
     end;
 
