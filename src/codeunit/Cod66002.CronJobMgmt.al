@@ -157,7 +157,6 @@ codeunit 66002 "Cron Job Mgmt."
         if LRIStockMovement.FindSet() then
             repeat
                 ClearLastError();
-
                 Clear(IntegrationDataMgmt);
                 IntegrationDataMgmt.SetJournalData(LRIStockMovement, Format(IntegrationDataType::"Post Movement"), AANBSetup);
                 if not IntegrationDataMgmt.Run() then begin
@@ -170,7 +169,6 @@ codeunit 66002 "Cron Job Mgmt."
                     IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
                 end;
                 Commit();
-
             until LRIStockMovement.Next() = 0;
 
         LRIStockMovement.SetCurrentKey("Reference Order No.");
@@ -195,6 +193,7 @@ codeunit 66002 "Cron Job Mgmt."
                         if GuiAllowed then
                             Message(GetLastErrorText());
                     end else begin
+                        // Processed - OnValidate
                         LRIStockMovement2.SetRange("Reference Order No.", LRIStockMovement."Reference Order No.");
                         if LRIStockMovement2.FindSet() then
                             repeat
@@ -501,8 +500,6 @@ codeunit 66002 "Cron Job Mgmt."
         ReleaseSalesDocument.PerformManualRelease(SalesHeader);
 
         Message(ReturnCreatedTxt);
-
-
     end;
 
 }
