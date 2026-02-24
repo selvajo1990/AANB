@@ -3,6 +3,7 @@ codeunit 66002 "Cron Job Mgmt."
     TableNo = "Job Queue Entry";
     trigger OnRun()
     var
+        LRIStockMovement: Record "LRI Stock Movement";
         FetchWooCommerceOrders: Codeunit "Fetch Woo Commerce Orders";
     begin
         case Rec."Parameter String" of
@@ -13,7 +14,7 @@ codeunit 66002 "Cron Job Mgmt."
             'FetchAllProductFromLRI':
                 this.FetchAllProductFromLRI();
             'ProcessAllMovmentJournal':
-                this.ProcessAllMovmentJournal();
+                this.ProcessSelectedMovmentJournal(LRIStockMovement);
             'ProcessAllSalesJournal':
                 this.ProcessAllSalesJournal();
 
@@ -262,75 +263,35 @@ codeunit 66002 "Cron Job Mgmt."
             until LRIStockMovement.Next() = 0;
     end;
 
-    procedure ProcessAllMovmentJournal()
-    var
-        IntegrationDataLog: Record "Integration Data Log";
-        LRIStockMovement: Record "LRI Stock Movement";
-        LRIStockMovement2: Record "LRI Stock Movement";
-        AANBSetup: Record "AANB Setup";
-        SalesHeader: Record "Sales Header";
-        SalesPost: Codeunit "Sales-Post";
-        IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
-        IntegrationDataType: Enum "Integration Data Type";
-        xReferenceOrderNo: Text[20];
-        SuccessCommentTxt: Label '1 journal line posted';
-        FailedCommentTxt: Label '1 journal line not posted. ';
-    begin
-        AANBSetup.Get();
-        LRIStockMovement.SetRange("Processed", false);
-        if LRIStockMovement.FindSet() then
-            repeat
-                ClearLastError();
-                Clear(IntegrationDataMgmt);
-                IntegrationDataMgmt.SetJournalData(LRIStockMovement, Format(IntegrationDataType::"Post Movement"), AANBSetup);
-                if not IntegrationDataMgmt.Run() then begin
-                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
-                    if GuiAllowed then
-                        Message(GetLastErrorText());
-                end else begin
-                    LRIStockMovement.Validate(Processed, true);
-                    LRIStockMovement.Modify();
-                    IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
-                end;
-                Commit();
-            until LRIStockMovement.Next() = 0;
-
-        Clear(LRIStockMovement);
-
-        LRIStockMovement.SetCurrentKey("Reference Order No.");
-        LRIStockMovement.SetRange("Processed", false);
-        LRIStockMovement.SetFilter("Reference Order No.", '>%1', '');
-        LRIStockMovement.SetRange("Entry Type", LRIStockMovement."Entry Type"::Sales);
-        if LRIStockMovement.FindSet() then
-            repeat
-                if LRIStockMovement."Reference Order No." <> xReferenceOrderNo then begin
-                    SalesHeader.Get(SalesHeader."Document Type"::Order, LRIStockMovement."Reference Order No.");
-                    SalesHeader.SetHideValidationDialog(true);
-                    SalesHeader.Ship := true;
-                    SalesHeader.Invoice := true;
-                    SalesHeader.Validate("Posting Date", LRIStockMovement."Entry Date");
-                    SalesHeader.Modify();
-                    Commit();
-                    Clear(SalesPost);
-                    SalesPost.SetPostingFlags(SalesHeader);
-                    SalesPost.SetSuppressCommit(true);
-                    if not SalesPost.Run(SalesHeader) then begin
-                        IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
-                        if GuiAllowed then
-                            Message(GetLastErrorText());
-                    end else begin
-                        LRIStockMovement2.SetRange("Reference Order No.", LRIStockMovement."Reference Order No.");
-                        if LRIStockMovement2.FindSet() then
-                            repeat
-                                LRIStockMovement2.Validate(Processed, true);
-                                LRIStockMovement2.Modify();
-                            until LRIStockMovement2.Next() = 0;
-                    end;
-                    Commit();
-                end;
-                xReferenceOrderNo := LRIStockMovement."Reference Order No.";
-            until LRIStockMovement.Next() = 0;
-    end;
+    // procedure ProcessAllMovmentJournal()
+    // var
+    //     AANBSetup: Record "AANB Setup";
+    //     LRIStockMovement: Record "LRI Stock Movement";
+    //     IntegrationDataLog: Record "Integration Data Log";
+    //     IntegrationDataMgmt: Codeunit "Integration Data Mgmt.";
+    //     IntegrationDataType: Enum "Integration Data Type";
+    //     SuccessCommentTxt: Label '1 journal line posted';
+    //     FailedCommentTxt: Label '1 journal line not posted. ';
+    // begin
+    //     AANBSetup.Get();
+    //     LRIStockMovement.SetRange("Processed", false);
+    //     if LRIStockMovement.FindSet() then
+    //         repeat
+    //             ClearLastError();
+    //             Clear(IntegrationDataMgmt);
+    //             IntegrationDataMgmt.SetJournalData(LRIStockMovement, Format(IntegrationDataType::"Post Movement"), AANBSetup);
+    //             if not IntegrationDataMgmt.Run() then begin
+    //                 IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
+    //                 if GuiAllowed then
+    //                     Message(GetLastErrorText());
+    //             end else begin
+    //                 LRIStockMovement.Validate(Processed, true);
+    //                 LRIStockMovement.Modify();
+    //                 IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), LRIStockMovement."Product Id", IntegrationDataLog."Record ID", SuccessCommentTxt, IntegrationDataLog."Integration Data Type"::Information);
+    //             end;
+    //             Commit();
+    //         until LRIStockMovement.Next() = 0;
+    // end;
 
     procedure ProcessSelectedSalesJournal(var WooCommerceOrderDetail: Record "Woo Commerce Order Detail")
     var
