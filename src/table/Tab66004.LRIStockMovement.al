@@ -31,6 +31,7 @@ table 66004 "LRI Stock Movement"
         }
         field(800; Price; Decimal)
         {
+            Caption = 'Cost/Price';
         }
         field(900; "Total Amount"; Decimal)
         {
