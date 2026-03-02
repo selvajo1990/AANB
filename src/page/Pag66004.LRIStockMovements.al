@@ -26,7 +26,7 @@ page 66004 "LRI Stock Movements"
                 field("Is Validated"; Rec."Is Validated")
                 {
                     ToolTip = 'Specifies the value of the Is Validated', Comment = '%';
-                    Visible = true;
+                    Visible = false;
                 }
                 field("Product Id"; Rec."Product Id")
                 {

@@ -37,7 +37,7 @@ codeunit 66001 "AANB Integation Mgmt."
                 end;
             LRIStockMovement."Entry Date" := this.DateValue('entryDate', JToken);
             LRIStockMovement."Entry Time" := this.TimeValue('entryTime', JToken);
-            LRIStockMovement."Location Code" := CopyStr(this.CodeValue('locationCode', JToken), 1, MaxStrLen(LRIStockMovement."Location Code"));
+            LRIStockMovement."Location Code" := 'LUXROUTAGE';
             LRIStockMovement."Reason Code" := CopyStr(this.CodeValue('reasonCode', JToken), 1, MaxStrLen(LRIStockMovement."Reason Code"));
             LRIStockMovement."Reason Description" := CopyStr(this.TextValue('reasonDescription', JToken), 1, MaxStrLen(LRIStockMovement."Reason Description"));
             LRIStockMovement.Insert(true)
