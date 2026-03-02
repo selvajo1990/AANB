@@ -78,6 +78,8 @@ codeunit 66003 "Integration Data Mgmt."
         this.SalesHeader.TestField("Ship-to Country/Region Code");
         this.SalesHeader.TestField("Ship-to Post Code");
 
+        this.ValidateB2BSalesOrder(SalesHeader);
+
         SalesHeaderObject.Add('rcb', this.AANBSetup."RCB No.");
         SalesHeaderObject.Add('order_ref', this.SalesHeader."No.");
         SalesHeaderObject.Add('carrier_code', this.SalesHeader."Shipping Agent Code");
@@ -171,6 +173,35 @@ codeunit 66003 "Integration Data Mgmt."
                 Error(this.Response);
             end;
         end;
+    end;
+
+    [ErrorBehavior(ErrorBehavior::Collect)]
+    procedure ValidateB2BSalesOrder(SalesHeaderP: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ErrorInfoL: ErrorInfo;
+        InventoryNotExistErr: Label 'Inventory does''t exist for item no.: %1 (Available Inventory: %2, Expected Inventory: %3)', Comment = '%1,%2,%3';
+    begin
+        SalesLine.SetRange("Document Type", SalesHeaderP."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeaderP."No.");
+        if SalesLine.FindSet() then
+            repeat
+                Item.Get(SalesLine."No.");
+                Item.CalcFields(Inventory);
+                SalesLine.TestField("Unit Price");
+                SalesLine.TestField("Unit of Measure Code");
+                SalesLine.TestField(Quantity);
+                if Item.Inventory < SalesLine.Quantity then begin
+                    ErrorInfoL := ErrorInfo.Create(StrSubstNo(InventoryNotExistErr, SalesLine."No.", Item.Inventory, SalesLine.Quantity));
+                    ErrorInfoL.ErrorType(ErrorType::Client);
+                    ErrorInfoL.Verbosity(Verbosity::Error);
+                    ErrorInfoL.DetailedMessage(GetLastErrorText());
+                    ErrorInfoL.DataClassification(DataClassification::CustomerContent);
+                    ErrorInfoL.Collectible(true);
+                    Error(ErrorInfoL);
+                end;
+            until SalesLine.Next() = 0;
     end;
 
     procedure ProductFetchFromLRI()

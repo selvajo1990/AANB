@@ -150,22 +150,18 @@ codeunit 66002 "Cron Job Mgmt."
         ItemToReturn: Text;
         OrderNotPostedErr: Label 'Order needs to be closed before proceeding with return.❌';
     begin
-        LRIStockMovement3.SetCurrentKey("Reference Order No.");
         LRIStockMovement3.SetRange("Is Validated", false);
         LRIStockMovement3.SetFilter("Entry Type", '%1|%2', LRIStockMovement3."Entry Type"::Sales, LRIStockMovement3."Entry Type"::"Sales Return");
         if LRIStockMovement3.FindSet() then
             repeat
-                if xReferenceOrderNo <> LRIStockMovement3."Reference Order No." then begin
-                    if SalesHeader.Get(SalesHeader."Document Type"::Order, LRIStockMovement3."Reference Order No.") then
-                        LRIStockMovement3."Is B2B" := true;
+                if SalesHeader.Get(SalesHeader."Document Type"::Order, LRIStockMovement3."Reference Order No.") then
+                    LRIStockMovement3."Is B2B" := true;
 
-                    if SalesHeader.Get(SalesHeader."Document Type"::"Return Order", LRIStockMovement3."Reference Order No.") then
-                        LRIStockMovement3."Is B2B" := true;
+                if SalesHeader.Get(SalesHeader."Document Type"::"Return Order", LRIStockMovement3."Reference Order No.") then
+                    LRIStockMovement3."Is B2B" := true;
 
-                    if LRIStockMovement3."Is B2B" then
-                        LRIStockMovement3.Modify();
-                end;
-                xReferenceOrderNo := LRIStockMovement3."Reference Order No.";
+                if LRIStockMovement3."Is B2B" then
+                    LRIStockMovement3.Modify();
 
                 LRIStockMovement3."Is Validated" := true;
                 LRIStockMovement3.Modify();

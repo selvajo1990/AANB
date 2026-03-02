@@ -11,5 +11,9 @@ tableextension 66000 "Sales Header" extends "Sales Header"
         field(66150; Priority; Enum Priority)
         {
         }
+        modify("External Document No.")
+        {
+            Caption = 'Order Reference No.';
+        }
     }
 }
