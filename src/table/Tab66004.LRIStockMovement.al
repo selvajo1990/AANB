@@ -82,7 +82,9 @@ table 66004 "LRI Stock Movement"
         }
         key(SK; "Reference Order No.")
         {
-
+        }
+        key(SK2; "Entry Date")
+        {
         }
     }
     trigger OnDelete()

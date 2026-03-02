@@ -5,6 +5,8 @@ page 66004 "LRI Stock Movements"
     PageType = List;
     SourceTable = "LRI Stock Movement";
     UsageCategory = Lists;
+    SourceTableView = sorting("Entry Date") order(descending);
+
     layout
     {
         area(Content)
@@ -141,7 +143,7 @@ page 66004 "LRI Stock Movements"
                 ApplicationArea = All;
                 Image = ItemLedger;
                 RunObject = page "Item Ledger Entries";
-                RunPageLink = "Item No." = field("Product Id"), "Document No." = field("Document No."), "Posting Date" = field("Entry Date");
+                RunPageLink = "Item No." = field("Product Id"), "Posting Date" = field("Entry Date");
                 ToolTip = 'Executes the Item Ledger Entries action.';
             }
             action(Item)

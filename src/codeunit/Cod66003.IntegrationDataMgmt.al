@@ -289,12 +289,14 @@ codeunit 66003 "Integration Data Mgmt."
         ItemJournalLine."External Document No." := CopyStr(this.LRIStockMovement."Document No.", 1, MaxStrLen(ItemJournalLine."External Document No."));
         ItemJournalLine.Validate("Posting Date", this.LRIStockMovement."Entry Date");
         ItemJournalLine.Validate("Item No.", this.LRIStockMovement."Product Id");
+
         if ItemJournalLine.Description = '' then
             ItemJournalLine.Description := this.LRIStockMovement.Description;
         ItemJournalLine.Validate("Location Code", this.LRIStockMovement."Location Code");
         ItemJournalLine.Validate(Quantity, this.LRIStockMovement.Qty);
-        if this.LRIStockMovement.Price > 0 then
-            ItemJournalLine.Validate("Unit Amount", this.LRIStockMovement.Price);
+
+        this.LRIStockMovement.TestField(Price);
+        ItemJournalLine.Validate("Unit Amount", this.LRIStockMovement.Price);
         ItemJournalLine.Insert();
 
         ItemJnlPostBatch.SetSuppressCommit(true);
