@@ -1,12 +1,12 @@
 page 66004 "LRI Stock Movements"
 {
     ApplicationArea = All;
-    Caption = 'LRI Stock Movements';
     PageType = List;
     SourceTable = "LRI Stock Movement";
     UsageCategory = Lists;
     SourceTableView = sorting("Entry Date") order(descending);
-
+    InsertAllowed = false;
+    DeleteAllowed = false;
     layout
     {
         area(Content)
@@ -16,43 +16,53 @@ page 66004 "LRI Stock Movements"
                 field("Document No."; Rec."Document No.")
                 {
                     ToolTip = 'Specifies the value of the Document No. field.', Comment = '%';
+                    Editable = false;
                 }
                 field("Entry Type"; Rec."Entry Type")
                 {
                     ToolTip = 'Specifies the value of the Entry Type field.', Comment = '%';
+                    Editable = false;
                 }
                 field("Is B2B"; Rec."Is B2B")
                 {
                     ToolTip = 'Specifies the value of the Is B2B', Comment = '%';
+                    Editable = false;
                 }
                 field("Is Validated"; Rec."Is Validated")
                 {
                     ToolTip = 'Specifies the value of the Is Validated', Comment = '%';
                     Visible = false;
+                    Editable = false;
                 }
                 field("Product Id"; Rec."Product Id")
                 {
                     ToolTip = 'Specifies the value of the Product Id field.', Comment = '%';
+                    Editable = false;
                 }
                 field(Description; Rec.Description)
                 {
                     ToolTip = 'Specifies the value of the Description field.', Comment = '%';
+                    Editable = false;
                 }
                 field(Qty; Rec.Qty)
                 {
                     ToolTip = 'Specifies the value of the Qty field.', Comment = '%';
+                    Editable = false;
                 }
                 field(Price; Rec.Price)
                 {
                     ToolTip = 'Specifies the value of the Price', Comment = '%';
+                    Editable = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ToolTip = 'Specifies the value of the Location Code field.', Comment = '%';
+                    Editable = false;
                 }
                 field("External Doc. No."; Rec."Reference Order No.")
                 {
                     ToolTip = 'Specifies the value of the External Doc. No. field.';
+                    Editable = false;
                 }
                 field("Entry Date"; Rec."Entry Date")
                 {
@@ -61,26 +71,32 @@ page 66004 "LRI Stock Movements"
                 field("Entry Time"; Rec."Entry Time")
                 {
                     ToolTip = 'Specifies the value of the Entry Time field.', Comment = '%';
+                    Editable = false;
                 }
                 field(Processed; Rec.Processed)
                 {
                     ToolTip = 'Specifies the value of the Processed field.', Comment = '%';
+                    Editable = false;
                 }
                 field("Processed Date"; Rec."Processed Date")
                 {
                     ToolTip = 'Specifies the value of the Processed Date field.', Comment = '%';
+                    Editable = false;
                 }
                 field("Processed Time"; Rec."Processed Time")
                 {
                     ToolTip = 'Specifies the value of the Processed Time field.', Comment = '%';
+                    Editable = false;
                 }
                 field("Reason Code"; Rec."Reason Code")
                 {
                     ToolTip = 'Specifies the value of the Reason Code field.', Comment = '%';
+                    Editable = false;
                 }
                 field("Reason Description"; Rec."Reason Description")
                 {
                     ToolTip = 'Specifies the value of the Reason Description field.';
+                    Editable = false;
                 }
             }
         }
