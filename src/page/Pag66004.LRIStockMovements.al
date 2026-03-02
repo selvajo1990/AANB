@@ -19,6 +19,15 @@ page 66004 "LRI Stock Movements"
                 {
                     ToolTip = 'Specifies the value of the Entry Type field.', Comment = '%';
                 }
+                field("Is B2B"; Rec."Is B2B")
+                {
+                    ToolTip = 'Specifies the value of the Is B2B', Comment = '%';
+                }
+                field("Is Validated"; Rec."Is Validated")
+                {
+                    ToolTip = 'Specifies the value of the Is Validated', Comment = '%';
+                    Visible = true;
+                }
                 field("Product Id"; Rec."Product Id")
                 {
                     ToolTip = 'Specifies the value of the Product Id field.', Comment = '%';

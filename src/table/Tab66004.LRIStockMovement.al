@@ -66,6 +66,12 @@ table 66004 "LRI Stock Movement"
         field(1400; "Processed Time"; Time)
         {
         }
+        field(1500; "Is B2B"; Boolean)
+        {
+        }
+        field(1600; "Is Validated"; Boolean)
+        {
+        }
     }
     keys
     {

@@ -127,7 +127,6 @@ codeunit 66002 "Cron Job Mgmt."
         end;
     end;
 
-
     procedure ProcessSelectedMovmentJournal(var LRIStockMovement: Record "LRI Stock Movement")
     var
         IntegrationDataLog: Record "Integration Data Log";
@@ -151,9 +150,33 @@ codeunit 66002 "Cron Job Mgmt."
         ItemToReturn: Text;
         OrderNotPostedErr: Label 'Order needs to be closed before proceeding with return.❌';
     begin
+        LRIStockMovement3.SetCurrentKey("Reference Order No.");
+        LRIStockMovement3.SetRange("Is Validated", false);
+        LRIStockMovement3.SetFilter("Entry Type", '%1|%2', LRIStockMovement3."Entry Type"::Sales, LRIStockMovement3."Entry Type"::"Sales Return");
+        if LRIStockMovement3.FindSet() then
+            repeat
+                if xReferenceOrderNo <> LRIStockMovement3."Reference Order No." then begin
+                    if SalesHeader.Get(SalesHeader."Document Type"::Order, LRIStockMovement3."Reference Order No.") then
+                        LRIStockMovement3."Is B2B" := true;
+
+                    if SalesHeader.Get(SalesHeader."Document Type"::"Return Order", LRIStockMovement3."Reference Order No.") then
+                        LRIStockMovement3."Is B2B" := true;
+
+                    if LRIStockMovement3."Is B2B" then
+                        LRIStockMovement3.Modify();
+                end;
+                xReferenceOrderNo := LRIStockMovement3."Reference Order No.";
+
+                LRIStockMovement3."Is Validated" := true;
+                LRIStockMovement3.Modify();
+            until LRIStockMovement3.Next() = 0;
+        Commit();
+
+        Clear(xReferenceOrderNo);
         AANBSetup.Get();
         LRIStockMovement.SetRange("Processed", false);
-        LRIStockMovement.SetRange("Reference Order No.", '');
+        LRIStockMovement.SetRange("Entry Type");
+        LRIStockMovement.SetRange("Is B2B", false);
         if LRIStockMovement.FindSet() then
             repeat
                 ClearLastError();
@@ -172,45 +195,44 @@ codeunit 66002 "Cron Job Mgmt."
             until LRIStockMovement.Next() = 0;
 
         LRIStockMovement.SetCurrentKey("Reference Order No.");
-        LRIStockMovement.SetRange("Processed", false);
-        LRIStockMovement.SetFilter("Reference Order No.", '>%1', '');
+        LRIStockMovement.SetRange("Is B2B", true);
         LRIStockMovement.SetRange("Entry Type", LRIStockMovement."Entry Type"::Sales);
         if LRIStockMovement.FindSet() then
             repeat
-                if LRIStockMovement."Reference Order No." <> xReferenceOrderNo then begin
-                    SalesHeader.Get(SalesHeader."Document Type"::Order, LRIStockMovement."Reference Order No.");
-                    SalesHeader.SetHideValidationDialog(true);
-                    SalesHeader.Ship := true;
-                    SalesHeader.Invoice := true;
-                    SalesHeader.Validate("Posting Date", LRIStockMovement."Entry Date");
-                    SalesHeader.Modify();
-                    Commit();
-                    Clear(SalesPost);
-                    SalesPost.SetPostingFlags(SalesHeader);
-                    SalesPost.SetSuppressCommit(true);
-                    if not SalesPost.Run(SalesHeader) then begin
-                        IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), SalesHeader."No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
-                        if GuiAllowed then
-                            Message(GetLastErrorText());
-                    end else begin
-                        // Processed - OnValidate
-                        LRIStockMovement2.SetRange("Reference Order No.", LRIStockMovement."Reference Order No.");
-                        if LRIStockMovement2.FindSet() then
-                            repeat
-                                LRIStockMovement2.Validate(Processed, true);
-                                LRIStockMovement2.Modify();
-                            until LRIStockMovement2.Next() = 0;
+                if LRIStockMovement."Reference Order No." <> xReferenceOrderNo then
+                    if SalesHeader.Get(SalesHeader."Document Type"::Order, LRIStockMovement."Reference Order No.") then begin
+                        SalesHeader.SetHideValidationDialog(true);
+                        SalesHeader.Ship := true;
+                        SalesHeader.Invoice := true;
+                        SalesHeader.Validate("Posting Date", LRIStockMovement."Entry Date");
+                        SalesHeader.Modify();
+                        Commit();
+                        Clear(SalesPost);
+                        SalesPost.SetPostingFlags(SalesHeader);
+                        SalesPost.SetSuppressCommit(true);
+                        if not SalesPost.Run(SalesHeader) then begin
+                            IntegrationDataLog.InsertOperationError(Format(IntegrationDataType::"Post Movement"), SalesHeader."No.", IntegrationDataLog."Record ID", FailedCommentTxt + GetLastErrorText(), IntegrationDataLog."Integration Data Type"::"Post Movement");
+                            if GuiAllowed then
+                                Message(GetLastErrorText());
+                        end else begin
+                            // Processed - OnValidate
+                            LRIStockMovement2.SetRange("Reference Order No.", LRIStockMovement."Reference Order No.");
+                            if LRIStockMovement2.FindSet() then
+                                repeat
+                                    LRIStockMovement2.Validate(Processed, true);
+                                    LRIStockMovement2.Modify();
+                                until LRIStockMovement2.Next() = 0;
+                        end;
+                        Commit();
                     end;
-                    Commit();
-                end;
                 xReferenceOrderNo := LRIStockMovement."Reference Order No.";
             until LRIStockMovement.Next() = 0;
 
-        clear(xReferenceOrderNo);
+        Clear(xReferenceOrderNo);
         Clear(SalesHeader);
+        Clear(LRIStockMovement3);
         LRIStockMovement.SetCurrentKey("Reference Order No.");
-        LRIStockMovement.SetRange("Processed", false);
-        LRIStockMovement.SetFilter("Reference Order No.", '>%1', '');
+        LRIStockMovement.SetRange("Is B2B", true);
         LRIStockMovement.SetRange("Entry Type", LRIStockMovement."Entry Type"::"Sales Return");
         if LRIStockMovement.FindSet() then
             repeat
