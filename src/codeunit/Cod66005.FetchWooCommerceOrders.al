@@ -23,7 +23,7 @@ codeunit 66005 "Fetch Woo Commerce Orders"
         this.Header.Clear();
         this.Client.DefaultRequestHeaders().Add('Authorization', this.BasicAuthorization(APITemplateSetup."User ID", APITemplateSetup.Password));
         this.Client.Get(FetchUrl, this.HttpResponse);
-        this.EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Request", 0, APITransactionLog.Status::Processed, '', APITemplateSetup, '', APITemplateSetup.EndPoint);
+        this.EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Request", 0, APITransactionLog.Status::Processed, '', APITemplateSetup, '', FetchUrl);
         if this.HttpResponse.HttpStatusCode <> 200 then begin
             if this.HttpResponse.IsSuccessStatusCode then
                 this.HttpResponse.Content.ReadAs(this.Response);
@@ -131,7 +131,7 @@ codeunit 66005 "Fetch Woo Commerce Orders"
                 this.Header.Clear();
                 this.Client.DefaultRequestHeaders().Add('Authorization', this.BasicAuthorization(APITemplateSetup."User ID", APITemplateSetup.Password));
                 this.Client.Get(FetchUrl, this.HttpResponse);
-                this.EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Request", 0, APITransactionLog.Status::Processed, '', APITemplateSetup, '', APITemplateSetup.EndPoint);
+                this.EntryNo := APITransactionLog.TransactionLog(APITransactionLog."Entry Type"::"Outgoing Request", 0, APITransactionLog.Status::Processed, '', APITemplateSetup, '', FetchUrl);
                 if this.HttpResponse.HttpStatusCode <> 200 then begin
                     if this.HttpResponse.IsSuccessStatusCode then
                         this.HttpResponse.Content.ReadAs(this.Response);
