@@ -326,8 +326,8 @@ codeunit 66003 "Integration Data Mgmt."
         ItemJournalLine.Validate("Location Code", this.LRIStockMovement."Location Code");
         ItemJournalLine.Validate(Quantity, this.LRIStockMovement.Qty);
 
-        //this.LRIStockMovement.TestField(Price);
-        //ItemJournalLine.Validate("Unit Amount", this.LRIStockMovement.Price);
+        this.LRIStockMovement.TestField(Price);
+        ItemJournalLine.Validate("Unit Amount", this.LRIStockMovement.Price);
         ItemJournalLine.TestField("Unit Amount");
         ItemJournalLine.Insert(true);
 

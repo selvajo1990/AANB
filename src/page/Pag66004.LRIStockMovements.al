@@ -52,7 +52,6 @@ page 66004 "LRI Stock Movements"
                 field(Price; Rec.Price)
                 {
                     ToolTip = 'Specifies the value of the Price', Comment = '%';
-                    Editable = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
