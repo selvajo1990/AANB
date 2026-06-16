@@ -30,6 +30,9 @@ report 66001 "Pforma Invoice - AANB"
             column(ToVat; this.ToVat)
             {
             }
+            column(TransferOrderNo_TransferShipmentHeader; "Transfer Order No.")
+            {
+            }
             column(Posting_Date; Format("Posting Date"))
             {
             }
