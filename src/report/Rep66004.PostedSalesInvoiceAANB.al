@@ -60,6 +60,9 @@ report 66004 "Posted Sales Invoice - AANB"
             column(Bill_to_Address_2; "Bill-to Address 2")
             {
             }
+            column(BilltoCity_SalesInvoiceHeader; "Bill-to City")
+            {
+            }
             column(Bill_to_Country_Region_Code; this.BillCountry)
             {
             }
@@ -75,7 +78,13 @@ report 66004 "Posted Sales Invoice - AANB"
             column(Ship_to_Address_2; "Ship-to Address 2")
             {
             }
+            column(ShiptoCity_SalesInvoiceHeader; "Ship-to City")
+            {
+            }
             column(Ship_to_Country_Region_Code; this.ShipCountry)
+            {
+            }
+            column(PaymentTerms; this.PaymentTerms.Description)
             {
             }
             dataitem("Sales Invoice Line"; "Sales Invoice Line")
@@ -108,9 +117,15 @@ report 66004 "Posted Sales Invoice - AANB"
                 column(Amount_Including_VAT; "Amount Including VAT")
                 {
                 }
+                column(VATClause; this.VATClause.Description)
+                {
+                }
                 trigger OnAfterGetRecord()
                 begin
                     this.VatAmount := "Amount Including VAT" - "Line Amount";
+
+                    if this.VATClause.Code = '' then
+                        if this.VATClause.Get("VAT Clause Code") then;
                 end;
 
             }
@@ -122,26 +137,13 @@ report 66004 "Posted Sales Invoice - AANB"
                     this.BillCountry := this.CountryRegion.Name;
                 if this.CountryRegion.Get("Ship-to Country/Region Code") then
                     this.ShipCountry := this.CountryRegion.Name;
+                if this.PaymentTerms.Get("Payment Terms Code") then;
             end;
         }
     }
     requestpage
     {
-        layout
-        {
-            area(Content)
-            {
-                group(GroupName)
-                {
-                }
-            }
-        }
-        actions
-        {
-            area(Processing)
-            {
-            }
-        }
+        SaveValues = true;
     }
     trigger OnInitReport()
     begin
@@ -152,9 +154,8 @@ report 66004 "Posted Sales Invoice - AANB"
     var
         CompanyInformation: Record "Company Information";
         CountryRegion: Record "Country/Region";
+        PaymentTerms: Record "Payment Terms";
+        VATClause: Record "VAT Clause";
         Companycountry, BillCountry, ShipCountry : Text[100];
         VatAmount: Decimal;
-
-
-
 }

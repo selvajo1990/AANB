@@ -1580,7 +1580,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>VAT</Value>
+                                  <Value>VAT </Value>
                                   <Style>
                                     <FontStyle>Normal</FontStyle>
                                     <FontSize>9pt</FontSize>
@@ -1591,6 +1591,16 @@
                                 </TextRun>
                                 <TextRun>
                                   <Value>=Fields!VAT__.Value</Value>
+                                  <Style>
+                                    <FontStyle>Normal</FontStyle>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Normal</FontWeight>
+                                    <TextDecoration>None</TextDecoration>
+                                    <Color>#000000</Color>
+                                  </Style>
+                                </TextRun>
+                                <TextRun>
+                                  <Value>%</Value>
                                   <Style>
                                     <FontStyle>Normal</FontStyle>
                                     <FontSize>9pt</FontSize>
@@ -2059,6 +2069,10 @@
                                   <Value>Payment Terms:</Value>
                                   <Style />
                                 </TextRun>
+                                <TextRun>
+                                  <Value>=Fields!PaymentTerms.Value</Value>
+                                  <Style />
+                                </TextRun>
                               </TextRuns>
                               <Style />
                             </Paragraph>
@@ -2089,21 +2103,21 @@
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="Textbox38">
+                        <Textbox Name="VATClause">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value />
+                                  <Value>=Fields!VATClause.Value</Value>
                                   <Style />
                                 </TextRun>
                               </TextRuns>
                               <Style />
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>Textbox38</rd:DefaultName>
+                          <rd:DefaultName>VATClause</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2366,6 +2380,12 @@
               <Paragraphs>
                 <Paragraph>
                   <TextRuns>
+                    <TextRun>
+                      <Value>VAT </Value>
+                      <Style>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </TextRun>
                     <TextRun>
                       <Value>=First(Fields!CompanyInformation_VAT.Value, "DataSet_Result")</Value>
                       <Style>
@@ -2761,7 +2781,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!Bill_to_Country_Region_Code.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!BilltoCity_SalesInvoiceHeader.Value, "DataSet_Result") &amp; ", " &amp; First(Fields!Bill_to_Country_Region_Code.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>9pt</FontSize>
                       </Style>
@@ -2791,6 +2811,12 @@
               <Paragraphs>
                 <Paragraph>
                   <TextRuns>
+                    <TextRun>
+                      <Value>VAT </Value>
+                      <Style>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </TextRun>
                     <TextRun>
                       <Value>=First(Fields!VAT_Registration_No_.Value, "DataSet_Result")</Value>
                       <Style>
@@ -2920,7 +2946,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!Ship_to_Country_Region_Code.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!ShiptoCity_SalesInvoiceHeader.Value, "DataSet_Result") &amp; ", " &amp; First(Fields!Ship_to_Country_Region_Code.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>9pt</FontSize>
                       </Style>
@@ -3175,6 +3201,9 @@ End Function
         <Field Name="Bill_to_Address_2">
           <DataField>Bill_to_Address_2</DataField>
         </Field>
+        <Field Name="BilltoCity_SalesInvoiceHeader">
+          <DataField>BilltoCity_SalesInvoiceHeader</DataField>
+        </Field>
         <Field Name="Bill_to_Country_Region_Code">
           <DataField>Bill_to_Country_Region_Code</DataField>
         </Field>
@@ -3190,8 +3219,14 @@ End Function
         <Field Name="Ship_to_Address_2">
           <DataField>Ship_to_Address_2</DataField>
         </Field>
+        <Field Name="ShiptoCity_SalesInvoiceHeader">
+          <DataField>ShiptoCity_SalesInvoiceHeader</DataField>
+        </Field>
         <Field Name="Ship_to_Country_Region_Code">
           <DataField>Ship_to_Country_Region_Code</DataField>
+        </Field>
+        <Field Name="PaymentTerms">
+          <DataField>PaymentTerms</DataField>
         </Field>
         <Field Name="ItemNo_">
           <DataField>ItemNo_</DataField>
@@ -3240,6 +3275,9 @@ End Function
         </Field>
         <Field Name="Amount_Including_VATFormat">
           <DataField>Amount_Including_VATFormat</DataField>
+        </Field>
+        <Field Name="VATClause">
+          <DataField>VATClause</DataField>
         </Field>
       </Fields>
       <Query>
